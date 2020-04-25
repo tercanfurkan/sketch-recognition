@@ -11,9 +11,11 @@ https://github.com/googlecreativelab/quickdraw-dataset
 * Tahmin motoru ve derin öğrenme modeli: CNN(Convolutional Neural Network) deirn öğrenme mimarisi kullanan Tensorflow Keras modeli. Tensorflow ve Keras derin öğrenme kütüphaneleri kullanılarak veri seti modellenebilir ve derin öğrenme gerçekleştirilebilir. Bu kütüphaneler ve gerekli olabilecek diğer veri işleme kütüphaneleri python programlara dilini sağlam bir şekilde destekliyor.
 
 ## React uygulamasi kurulum
+```
 npm install
 npm run build
 npm run build-electron
-npm run package
+npm run package # hem mac hem win uygulamalarini olusturmak icin
 npm run package-mac
 npm run package-win
+```
