@@ -15,7 +15,7 @@ https://github.com/googlecreativelab/quickdraw-dataset
 npm install
 npm run build
 npm run build-electron
-npm run package # hem mac hem win uygulamalarini olusturmak icin
+npm run package
 npm run package-mac
 npm run package-win
 ```
