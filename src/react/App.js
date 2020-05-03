@@ -14,7 +14,7 @@ import Countdown from './Countdown';
 import ChatBubble from './ChatBubble';
 
 // import { channels } from '../shared/constants';
-// const { ipcRenderer } = window;
+const { ipcRenderer } = window;
 
 const COUNTDOWN_DURATION = 20;
 const sketches = ['KEDİ', 'KÖPEK', 'ARABA', 'TREN', 'GEMİ', 'BİSİKLET', 'ÖRÜMCEK', 'ELMA', 'TAVŞAN', 'MAYMUN', 'EV', 'UYKU TULUMU', 'ROKET', 'YILAN', 'ZÜRAFA', 'BARDAK', 'KALEM', 'KİTAP', 'ANANAS', 'KAPLAN', 'TELEVİZYON', 'SANDALYE', 'CEKET', 'LAMBA', 'BİLGİSAYAR', 'SAAT'];
@@ -86,6 +86,23 @@ class App extends React.Component {
   componentDidMount() {
     this.updateWindowDimensions();
     window.addEventListener("resize", this.updateWindowDimensions.bind(this));
+
+    // setting up an event listener to read data that background process
+    // will send via the main process after processing the data we
+    // send from visiable renderer process
+    ipcRenderer.on('MESSAGE_FROM_BACKGROUND_VIA_MAIN', (event, args) => {  
+      console.log(args.message);   
+    });
+
+    // trigger event to start background process
+    // can be triggered pretty much from anywhere after
+    // you have set up a listener to get the information
+    // back from background process, as I have done in line 13
+    console.log('ipcRenderer send', ipcRenderer)
+    ipcRenderer.send('START_BACKGROUND_VIA_MAIN', {
+      number: 25,
+    });
+
   }
 
   componentWillUnmount() {
