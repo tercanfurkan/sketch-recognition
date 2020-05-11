@@ -4,10 +4,17 @@ variables
 var model;
 var canvas;
 var classNames = [];
-var canvas;
 var coords = [];
 var mousePressed = false;
 var mode;
+
+let drawThis = "";
+let modelLoaded = false;
+
+const dictionary = {
+    "english": ["bush","crab","asparagus","beard","diving_board","cell_phone","bus","baseball","bucket","cat","calendar","binoculars","basket","circle","bottlecap","canoe","campfire","cloud","airplane","cake","aircraft_carrier","clock","basketball","butterfly","crocodile","compass","brain","bed","dresser","clarinet","arm","anvil","ant","duck","broom","ceiling_fan","blackberry","angel","couch","cookie","ambulance","crown","bench","blueberry","bread","cactus","diamond","bulldozer","belt","bat","barn","backpack","apple","camouflage","chair","drill","cruise_ship","axe","bee","dolphin","door","beach","banana","cow","church","donut","car","book","bird","broccoli","bandage","bear","bathtub","baseball_bat","drums","candle","dog","cannon","camel","cup","castle","boomerang","carrot","computer","bridge","calculator","dragon","bowtie","bicycle","alarm_clock","bracelet","animal_migration","chandelier","crayon","cooler","birthday_cake","dishwasher","coffee_cup","cello","camera"],
+    "turkish": ["çalı", "yengeç", "kuşkonmaz", "sakal", "dalış_ tahtası", "cep telefonu", "otobüs", "beyzbol", "kova", "kedi", "takvim", " dürbün", "sepet", "daire", "şişe kapağı", "kano", "kamp ateşi", "bulut", "uçak", "kek", "uçak gemisi", "saat", "basketbol", "kelebek", "timsah", "pusula", "beyin", "yatak", "şifonyer", "klarnet", "kol", "örs", "karınca", "ördek", "süpürge", "tavan fanı"," böğürtlen", 'melek', 'kanepe', 'çerez', 'ambulans', 'taç', 'tezgah', 'yabanmersini', 'ekmek', 'kaktüs', 'elmas', 'buldozer', 'kemer', "yarasa", "ahır", "sırt çantası", "elma", "kamuflaj", "sandalye", "matkap", "kruz gemisi", "balta", "arı", "yunus", "kapı"," plaj", "muz", "inek", "kilise", "çörek", "araba", "kitap", "kuş", "brokoli", "bandaj", "ayı", "küvet", "beyzbol sopası", "davul", "mum", "köpek", "top", "deve", "fincan", "kale", "bumerang", "havuç", "bilgisayar", "köprü", "hesap makinesi"," ejderha", "papyon", "bisiklet", "alarm saati", "bilezik", "hayvan göçü", "avize", "mum boya", "soğutucu", "doğumgünü pastası", "bulaşık makinesi", "kahve kupası", "viyolonsel" ,"kamera"],
+};
 
 /*
 prepare the drawing canvas 
@@ -30,6 +37,8 @@ $(function() {
     canvas.on('mouse:move', function(e) {
         recordCoor(e)
     });
+    console.log(window.innerWidth);
+    console.log(window.innerHeight-74);
 })
 
 /*
@@ -38,18 +47,20 @@ set the table of the predictions
 function setTable(top5, probs) {
     console.log(top5);
     console.log(probs);
-
-    document.getElementById('i-see-things').innerHTML = "I see " + top5.join(', ');
-    //loop over the predictions 
-    for (var i = 0; i < top5.length; i++) {
-        let sym = document.getElementById('sym' + (i + 1))
-        let prob = document.getElementById('prob' + (i + 1))
-        sym.innerHTML = top5[i]
-        prob.innerHTML = Math.round(probs[i] * 100)
+    let classList = [];
+    if (modelLoaded) {
+        top5.forEach(element => {
+            console.log(element);
+            classList.push(translate(element));
+        });
+        console.log("setTable, classList: ", classList);
+        console.log("setTable, classList contains drawThis: ", drawThis);
+        if (classList.includes(drawThis)) {
+            setMessage('Tebrikler! ' + drawThis.toUpperCase() + ' görüyorum!');
+        } else {
+            setMessage(classList.slice(0,3).join(', ').toUpperCase() + ' görüyorum');
+        }
     }
-    //create the pie 
-    createPie(".pieID.legend", ".pieID.pie");
-
 }
 
 /*
@@ -166,9 +177,9 @@ function success(data) {
         let symbol = lst[i]
         classNames[i] = symbol
     }
-    const drawThis = classNames[Math.floor(Math.random() * classNames.length)];
-    console.log("classes loaded: ", classNames);
-    document.getElementById('draw-this').innerHTML = "Draw: " + drawThis;
+    drawThis = translate(classNames[Math.floor(Math.random() * classNames.length)]);
+    if (modelLoaded)
+        setTitle(drawThis);
 }
 
 /*
@@ -246,18 +257,37 @@ allow drawing on canvas
 */
 function allowDrawing() {
     canvas.isDrawingMode = 1;
-    if (mode == 'en')
-        document.getElementById('status').innerHTML = 'Model Loaded';
-    else
-        document.getElementById('status').innerHTML = 'تم التحميل';
-    $('button').prop('disabled', false);
+    modelLoaded = true;
+    setTitle(drawThis);
 }
 
 /*
-clear the canvs 
+clear the canvas 
 */
 function erase() {
     canvas.clear();
     canvas.backgroundColor = '#ffffff';
     coords = [];
+    console.log("erase");
+    setMessage("");
+}
+
+function next() {
+    window.location.reload(false);
+}
+
+function setTitle(word) {
+    console.log("setTitle");
+    
+    document.getElementById('draw-this').innerHTML = word.toUpperCase() + ' çizer misin?';
+}
+
+function setMessage(message) {
+    console.log("setTitle");
+    document.getElementById('i-see-things').innerHTML = message;
+}
+
+function translate(word) {
+    index = dictionary.english.indexOf(word);
+    return dictionary.turkish[index];
 }
