@@ -6,14 +6,18 @@ var canvas;
 var classNames = [];
 var coords = [];
 var mousePressed = false;
-var mode;
 
 let drawThis = "";
 let modelLoaded = false;
 
-const dictionary = {
-    "english": ["bush","crab","asparagus","beard","diving_board","cell_phone","bus","baseball","bucket","cat","calendar","binoculars","basket","circle","bottlecap","canoe","campfire","cloud","airplane","cake","aircraft_carrier","clock","basketball","butterfly","crocodile","compass","brain","bed","dresser","clarinet","arm","anvil","ant","duck","broom","ceiling_fan","blackberry","angel","couch","cookie","ambulance","crown","bench","blueberry","bread","cactus","diamond","bulldozer","belt","bat","barn","backpack","apple","camouflage","chair","drill","cruise_ship","axe","bee","dolphin","door","beach","banana","cow","church","donut","car","book","bird","broccoli","bandage","bear","bathtub","baseball_bat","drums","candle","dog","cannon","camel","cup","castle","boomerang","carrot","computer","bridge","calculator","dragon","bowtie","bicycle","alarm_clock","bracelet","animal_migration","chandelier","crayon","cooler","birthday_cake","dishwasher","coffee_cup","cello","camera"],
-    "turkish": ["çalı", "yengeç", "kuşkonmaz", "sakal", "dalış_ tahtası", "cep telefonu", "otobüs", "beyzbol", "kova", "kedi", "takvim", " dürbün", "sepet", "daire", "şişe kapağı", "kano", "kamp ateşi", "bulut", "uçak", "kek", "uçak gemisi", "saat", "basketbol", "kelebek", "timsah", "pusula", "beyin", "yatak", "şifonyer", "klarnet", "kol", "örs", "karınca", "ördek", "süpürge", "tavan fanı"," böğürtlen", 'melek', 'kanepe', 'çerez', 'ambulans', 'taç', 'tezgah', 'yabanmersini', 'ekmek', 'kaktüs', 'elmas', 'buldozer', 'kemer', "yarasa", "ahır", "sırt çantası", "elma", "kamuflaj", "sandalye", "matkap", "kruz gemisi", "balta", "arı", "yunus", "kapı"," plaj", "muz", "inek", "kilise", "çörek", "araba", "kitap", "kuş", "brokoli", "bandaj", "ayı", "küvet", "beyzbol sopası", "davul", "mum", "köpek", "top", "deve", "fincan", "kale", "bumerang", "havuç", "bilgisayar", "köprü", "hesap makinesi"," ejderha", "papyon", "bisiklet", "alarm saati", "bilezik", "hayvan göçü", "avize", "mum boya", "soğutucu", "doğumgünü pastası", "bulaşık makinesi", "kahve kupası", "viyolonsel" ,"kamera"],
+// const dictionary_100 = {
+//     "english": ['drums', 'sun', 'laptop', 'anvil', 'baseball_bat', 'ladder', 'eyeglasses', 'grapes', 'book', 'dumbbell', 'traffic_light', 'wristwatch', 'wheel', 'shovel', 'bread', 'table', 'tennis_racquet', 'cloud', 'chair', 'headphones', 'face', 'eye', 'airplane', 'snake', 'lollipop', 'power_outlet', 'pants', 'mushroom', 'star', 'sword', 'clock', 'hot_dog', 'syringe', 'stop_sign', 'mountain', 'smiley_face', 'apple', 'bed', 'shorts', 'broom', 'diving_board', 'flower', 'spider', 'cell_phone', 'car', 'camera', 'tree', 'square', 'moon', 'radio', 'hat', 'pizza', 'axe', 'door', 'tent', 'umbrella', 'line', 'cup', 'fan', 'triangle', 'basketball', 'pillow', 'scissors', 't-shirt', 'tooth', 'alarm_clock', 'paper_clip', 'spoon', 'microphone', 'candle', 'pencil', 'envelope', 'saw', 'frying_pan', 'screwdriver', 'helmet', 'bridge', 'light_bulb', 'ceiling_fan', 'key', 'donut', 'bird', 'circle', 'beard', 'coffee_cup', 'butterfly', 'bench', 'rifle', 'cat', 'sock', 'ice_cream', 'moustache', 'suitcase', 'hammer', 'rainbow', 'knife', 'cookie', 'baseball', 'lightning', 'bicycle'],
+//     "turkish": ['bateri','güneş','dizüstü bilgisayar','örs','beyzbol sopası','merdiven','gözlük','üzüm','kitap','dambıl','trafik ışığı','kol saati', 'tekerlek','kürek','ekmek','masa','tenis raketi','bulut','sandalye','kulaklıklar','yüz','göz','uçak','yılan','lolipop ','priz','pantolon','mantar','yıldız','kılıç','saat','hot dog','şırınga','dur işareti','dağ','gülen surat','elma', 'yatak','şort','süpürge','sıçrama tahtası','çiçek','örümcek','cep telefonu','araba','kamera','ağaç','kare','ay','radyo ','şapka','pizza','balta','kapı','çadır','şemsiye','çizgi','fincan','fan','üçgen','basketbol','yastık', 'makas','tişört','diş','alarm saati','ataş','kaşık','mikrofon','mum','kalem','zarf','testere','tava','tornavida','kask','köprü','ampul','tavan vantilatörü','anahtar','donut','kuş','daire','sakal','kahve kupası','kelebek','tezgah ','tüfek','kedi','çorap','dondurma','bıyık','bavul','çekiç','gök kuşağı','bıçak','kurabiye','beyzbol','yıldırım','bisiklet']
+// };
+
+const dictionary = { // 50
+    "english": ['umbrella', 'square', 'spider', 'cat', 'butterfly', 'table', 'airplane', 'lightning', 'bench', 'spoon', 'shorts', 'bird', 'tennis_racquet', 'hot_dog', 'power_outlet', 'cell_phone', 'knife', 'rainbow', 'bread', 'bed', 'headphones', 'hat', 'baseball', 'cookie', 'microphone', 'apple', 'key', 'basketball', 'eyeglasses', 'eye', 'line', 'triangle', 'book', 'pizza', 'circle', 'mushroom', 'face', 'snake', 'flower', 'dumbbell', 'traffic_light', 'ice_cream', 'hammer', 'moon', 'rifle', 'radio', 'donut', 'moustache', 'camera', 'pillow'],
+    "turkish": ['şemsiye','kare','örümcek','kedi','kelebek','masa','uçak','yıldırım','tezgah','kaşık','şort','kuş','tenis raketi','sosis','priz','cep telefonu','bıçak','gökkuşağı','ekmek','yatak','kulaklık','şapka','beyzbol','çerez','mikrofon','elma','anahtar','basketbol','gözlük','göz','çizgi','üçgen','kitap','pizza','daire','mantar','yüz','yılan','çiçek','dambıl','trafik ışığı','ice_cream','çekiç','ay','tüfek','radyo','donut','bıyık','kamera','yastık']
 };
 
 /*
@@ -157,10 +161,7 @@ function getClassNames(indices) {
 load the class names 
 */
 async function loadDict() {
-    if (mode == 'ar')
-        loc = 'model/class_names_ar.txt'
-    else
-        loc = 'model/class_names.txt'
+    loc = 'model2/class_names.txt'
     
     await $.ajax({
         url: loc,
@@ -240,7 +241,7 @@ async function start(cur_mode) {
     mode = cur_mode
     
     //load the model 
-    model = await tf.loadLayersModel('model/model.json')
+    model = await tf.loadLayersModel('model2/model.json')
     
     //warm up 
     model.predict(tf.zeros([1, 28, 28, 1]))
