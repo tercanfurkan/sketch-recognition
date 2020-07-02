@@ -36,29 +36,8 @@
 </head>
 
 <body>
-  <nav class="navbar navbar-expand-sm bg-light navbar-light">
-    <!-- Brand/logo -->
-    <a class="navbar-brand" href="#">
-      <h1 id="draw-this">Model yükleniyor ...</h1>
-    </a>
-  </nav>
-
-  <div class="row">
-    <div class="col">
-      <canvas id="canvas" width="1200" height="650" class="canvas"></canvas>
-      <div class="row">
-        <div class="col">
-          <div class="btn-group">
-            <button type="button" class="btn btn-outline-primary" onclick='erase()' style='margin-left:10px;'>Temizle</button>
-            <button type="button" class="btn btn-outline-primary" onclick='next()' style='margin-left:10px;'>>></button>
-          </div>
-        </div>
-        <div class="col">
-          <h4 id='i-see-things'></h4>
-        </div>
-      </div>
-    </div>
-  </div>
+  <canvas id="canvas" class="canvas"></canvas>
+  <h4 id='i-see-things'></h4>
 </body>
 <script>
   console.log('starting');

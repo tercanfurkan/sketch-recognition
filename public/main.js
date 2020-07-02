@@ -7,8 +7,15 @@ var classNames = [];
 var coords = [];
 var mousePressed = false;
 
-let drawThis = "";
+let objectToDraw = "";
 let modelLoaded = false;
+let drawThisLabel = "Model yükleniyor..";
+let messageText = "";
+
+const DEFAULT_MARGIN_X = 50;
+const DEFAULT_MARGIN_Y = 50;
+
+const titleText = "YAPAY ZEKA"
 
 // const dictionary_100 = {
 //     "english": ['drums', 'sun', 'laptop', 'anvil', 'baseball_bat', 'ladder', 'eyeglasses', 'grapes', 'book', 'dumbbell', 'traffic_light', 'wristwatch', 'wheel', 'shovel', 'bread', 'table', 'tennis_racquet', 'cloud', 'chair', 'headphones', 'face', 'eye', 'airplane', 'snake', 'lollipop', 'power_outlet', 'pants', 'mushroom', 'star', 'sword', 'clock', 'hot_dog', 'syringe', 'stop_sign', 'mountain', 'smiley_face', 'apple', 'bed', 'shorts', 'broom', 'diving_board', 'flower', 'spider', 'cell_phone', 'car', 'camera', 'tree', 'square', 'moon', 'radio', 'hat', 'pizza', 'axe', 'door', 'tent', 'umbrella', 'line', 'cup', 'fan', 'triangle', 'basketball', 'pillow', 'scissors', 't-shirt', 'tooth', 'alarm_clock', 'paper_clip', 'spoon', 'microphone', 'candle', 'pencil', 'envelope', 'saw', 'frying_pan', 'screwdriver', 'helmet', 'bridge', 'light_bulb', 'ceiling_fan', 'key', 'donut', 'bird', 'circle', 'beard', 'coffee_cup', 'butterfly', 'bench', 'rifle', 'cat', 'sock', 'ice_cream', 'moustache', 'suitcase', 'hammer', 'rainbow', 'knife', 'cookie', 'baseball', 'lightning', 'bicycle'],
@@ -25,10 +32,14 @@ prepare the drawing canvas
 */
 $(function() {
     canvas = window._canvas = new fabric.Canvas('canvas');
+    canvas.setWidth(window.innerWidth);
+    canvas.setHeight(window.innerHeight);
     canvas.backgroundColor = '#ffffff';
     canvas.isDrawingMode = 0;
     canvas.freeDrawingBrush.color = "black";
     canvas.freeDrawingBrush.width = 7;
+    console.log("WIDTH: " + canvas.width);
+    console.log("HEIGHT: " + canvas.height);
     canvas.renderAll();
     //setup listeners 
     canvas.on('mouse:up', function(e) {
@@ -41,9 +52,106 @@ $(function() {
     canvas.on('mouse:move', function(e) {
         recordCoor(e)
     });
-    console.log(window.innerWidth);
-    console.log(window.innerHeight-74);
+
+    canvas.add(new fabric.Text(titleText, {
+        left: getLeftX(),
+        top: getTopY(),
+        fontFamily: 'BloggerSans',
+        fontSize: '25'
+      }));
+
+    fabric.Image.fromURL('static/home2x.png', function(img) {
+        console.log("getRightX", getRightX())
+        console.log("window.innerWidth - 100", window.innerWidth - 100)
+        oImg = img.set({
+            selectable: true,
+            left: getLeftX(),
+            top: getBottomY('normal'),
+        })
+        canvas.add(oImg); //add new image to canvas
+        oImg.on('mousedown',next); //add mouse down lisner to image
+    });
+
+    fabric.Image.fromURL('static/erase2x.png', function(img) {
+        console.log("getRightX", getRightX())
+        console.log("window.innerWidth - 100", window.innerWidth - 100)
+        oImg = img.set({
+            selectable: true,
+            left: getRightX() - DEFAULT_MARGIN_X * 4,
+            top: getBottomY('big'),
+        })
+        canvas.add(oImg); //add new image to canvas
+        oImg.on('mousedown',next); //add mouse down lisner to image
+    });
+
+    fabric.Image.fromURL('static/back2x.png', function(img) {
+        console.log("getRightX", getRightX())
+        console.log("window.innerWidth - 100", window.innerWidth - 100)
+        oImg = img.set({
+            selectable: true,
+            left: getRightX() - DEFAULT_MARGIN_X * 2.2,
+            top: getBottomY('normal'),
+        })
+        canvas.add(oImg); //add new image to canvas
+        oImg.on('mousedown',next); //add mouse down lisner to image
+    });
+
+    fabric.Image.fromURL('static/next2x.png', function(img) {
+        console.log("getRightX", getRightX())
+        console.log("window.innerWidth - 100", window.innerWidth - 100)
+        oImg = img.set({
+            selectable: true,
+            left: getRightX(),
+            top: getBottomY('small'),
+        })
+        canvas.add(oImg); //add new image to canvas
+        oImg.on('mousedown',next); //add mouse down lisner to image
+    });
 })
+
+function getWidth() {
+    return window.innerWidth;
+}
+
+function getHeight() {
+    return window.innerHeight;
+}
+
+function getCenterX() {
+    return window.innerWidth / 2;
+}
+
+function getCenterY() { 
+    return window.innerHeight / 2;
+}
+
+function getUpperY() {
+    return getCenterY() / 2;
+}
+
+function getLeftX() {
+    return 0 + DEFAULT_MARGIN_X;
+}
+
+function getRightX() {
+    return getWidth() - DEFAULT_MARGIN_X * 2;
+}
+
+function getTopY() {
+    return 0 + DEFAULT_MARGIN_Y;
+}
+
+function getBottomY(size) {
+    switch (size) {
+        case 'big':
+            return getHeight() - DEFAULT_MARGIN_Y * 3;
+        case 'small':
+            return getHeight() - DEFAULT_MARGIN_Y * 2.2;
+        case 'normal':
+        default:
+            return getHeight() - DEFAULT_MARGIN_Y * 2.5;
+    }
+}
 
 /*
 set the table of the predictions 
@@ -58,9 +166,9 @@ function setTable(top5, probs) {
             classList.push(translate(element));
         });
         console.log("setTable, classList: ", classList);
-        console.log("setTable, classList contains drawThis: ", drawThis);
-        if (classList.includes(drawThis)) {
-            setMessage('Tebrikler, bu bir "' + drawThis.toUpperCase() + '"!');
+        console.log("setTable, classList contains drawThis: ", objectToDraw);
+        if (classList.includes(objectToDraw)) {
+            setMessage('Tebrikler, bu bir "' + objectToDraw.toUpperCase() + '"!');
         } else {
             setMessage(classList.slice(0,3).join(', ').toUpperCase() + ' görüyorum');
         }
@@ -178,9 +286,9 @@ function success(data) {
         let symbol = lst[i]
         classNames[i] = symbol
     }
-    drawThis = translate(classNames[Math.floor(Math.random() * classNames.length)]);
+    objectToDraw = translate(classNames[Math.floor(Math.random() * classNames.length)]);
     if (modelLoaded)
-        setTitle(drawThis);
+        setDrawThis(objectToDraw);
 }
 
 /*
@@ -259,7 +367,7 @@ allow drawing on canvas
 function allowDrawing() {
     canvas.isDrawingMode = 1;
     modelLoaded = true;
-    setTitle(drawThis);
+    setDrawThis(objectToDraw);
 }
 
 /*
@@ -277,15 +385,36 @@ function next() {
     window.location.reload(false);
 }
 
-function setTitle(word) {
+function setDrawThis(word) {
     console.log("setTitle");
-    
-    document.getElementById('draw-this').innerHTML = '"' + word.toUpperCase() + '" çizer misin?';
+    drawThisLabel = '"' + word.toUpperCase() + '" çizer misin?';
+    if (word === "") return; 
+
+    var drawThisText = new fabric.Text(drawThisLabel, {
+        left: getCenterX,
+        top: 50,
+        fontFamily: 'BloggerSans',
+        fontSize: '40'
+      });
+    canvas.add(drawThisText);
 }
 
 function setMessage(message) {
     console.log("setTitle");
     document.getElementById('i-see-things').innerHTML = message;
+    if (message === "") return; 
+
+    if (messageText !== "") {
+        canvas.remove(messageText)
+    }
+
+    messageText = new fabric.Text(message, {
+        left: 200,
+        top: 120,
+        fontFamily: 'BloggerSans',
+        fontSize: '25'
+      });
+    canvas.add(messageText);
 }
 
 function translate(word) {
