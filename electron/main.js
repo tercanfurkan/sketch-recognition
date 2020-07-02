@@ -18,6 +18,7 @@ function createWindow () {
       preload: path.join(__dirname, 'preload.js'),
     },
   });
+  // mainWindow.maximize();
   mainWindow.loadURL(startUrl);
   mainWindow.on('closed', function () {
     mainWindow = null;

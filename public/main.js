@@ -17,14 +17,13 @@ const DEFAULT_MARGIN_Y = 50;
 
 const titleText = "YAPAY ZEKA"
 
-// const dictionary_100 = {
-//     "english": ['drums', 'sun', 'laptop', 'anvil', 'baseball_bat', 'ladder', 'eyeglasses', 'grapes', 'book', 'dumbbell', 'traffic_light', 'wristwatch', 'wheel', 'shovel', 'bread', 'table', 'tennis_racquet', 'cloud', 'chair', 'headphones', 'face', 'eye', 'airplane', 'snake', 'lollipop', 'power_outlet', 'pants', 'mushroom', 'star', 'sword', 'clock', 'hot_dog', 'syringe', 'stop_sign', 'mountain', 'smiley_face', 'apple', 'bed', 'shorts', 'broom', 'diving_board', 'flower', 'spider', 'cell_phone', 'car', 'camera', 'tree', 'square', 'moon', 'radio', 'hat', 'pizza', 'axe', 'door', 'tent', 'umbrella', 'line', 'cup', 'fan', 'triangle', 'basketball', 'pillow', 'scissors', 't-shirt', 'tooth', 'alarm_clock', 'paper_clip', 'spoon', 'microphone', 'candle', 'pencil', 'envelope', 'saw', 'frying_pan', 'screwdriver', 'helmet', 'bridge', 'light_bulb', 'ceiling_fan', 'key', 'donut', 'bird', 'circle', 'beard', 'coffee_cup', 'butterfly', 'bench', 'rifle', 'cat', 'sock', 'ice_cream', 'moustache', 'suitcase', 'hammer', 'rainbow', 'knife', 'cookie', 'baseball', 'lightning', 'bicycle'],
-//     "turkish": ['bateri','güneş','dizüstü bilgisayar','örs','beyzbol sopası','merdiven','gözlük','üzüm','kitap','dambıl','trafik ışığı','kol saati', 'tekerlek','kürek','ekmek','masa','tenis raketi','bulut','sandalye','kulaklıklar','yüz','göz','uçak','yılan','lolipop ','priz','pantolon','mantar','yıldız','kılıç','saat','hot dog','şırınga','dur işareti','dağ','gülen surat','elma', 'yatak','şort','süpürge','sıçrama tahtası','çiçek','örümcek','cep telefonu','araba','kamera','ağaç','kare','ay','radyo ','şapka','pizza','balta','kapı','çadır','şemsiye','çizgi','fincan','fan','üçgen','basketbol','yastık', 'makas','tişört','diş','alarm saati','ataş','kaşık','mikrofon','mum','kalem','zarf','testere','tava','tornavida','kask','köprü','ampul','tavan vantilatörü','anahtar','donut','kuş','daire','sakal','kahve kupası','kelebek','tezgah ','tüfek','kedi','çorap','dondurma','bıyık','bavul','çekiç','gök kuşağı','bıçak','kurabiye','beyzbol','yıldırım','bisiklet']
-// };
-
 const dictionary = { // 50
     "english": ['umbrella', 'square', 'spider', 'cat', 'butterfly', 'table', 'airplane', 'lightning', 'bench', 'spoon', 'shorts', 'bird', 'tennis_racquet', 'hot_dog', 'power_outlet', 'cell_phone', 'knife', 'rainbow', 'bread', 'bed', 'headphones', 'hat', 'baseball', 'cookie', 'microphone', 'apple', 'key', 'basketball', 'eyeglasses', 'eye', 'line', 'triangle', 'book', 'pizza', 'circle', 'mushroom', 'face', 'snake', 'flower', 'dumbbell', 'traffic_light', 'ice_cream', 'hammer', 'moon', 'rifle', 'radio', 'donut', 'moustache', 'camera', 'pillow', 'banana', 'bridge', 'campfire', 'clock', 'diamond', 'door', 'envelope' , 'fish', 'hand', 'house', 'mountain', 'mushroom', 'pear', 'sun', 'toothbrush', 'tree', 'wheel', 'pencil'],
     "turkish": ['şemsiye','kare','örümcek','kedi','kelebek','masa','uçak','yıldırım','tezgah','kaşık','şort','kuş','tenis raketi','sosis','priz','cep telefonu','bıçak','gökkuşağı','ekmek','yatak','kulaklık','şapka','beyzbol','çerez','mikrofon','elma','anahtar','basketbol','gözlük','göz','çizgi','üçgen','kitap','pizza','daire','mantar','yüz','yılan','çiçek','dambıl','trafik ışığı','ice_cream','çekiç','ay','tüfek','radyo','donut','bıyık','kamera','yastık', 'muz', 'köprü', 'kamp ateşi', 'saat', 'elmas', 'kapı', 'zarf' , 'balık', 'el', 'ev', 'dağ', 'mantar', 'armut', 'güneş', 'diş fırçası', 'ağaç', 'tekerlek', 'kalem']
+};
+const partial_dictionary = { // 21
+    "english": ['pear','moustache','cell_phone','cat,','headphones','bird','power_outlet','line','hammer','bread','square','house','spoon','umbrella','clock','eye','lightning','hand','spider','triangle','sun','butterfly'],
+    "turkish": ['armut','bıyık','cep telefonu','kedi','kulaklık','kuş','priz','çizgi','çekiç','ekmek','kare','ev','kaşık','şemsiye','saat','göz','yıldırım','el','örümcek','üçgen','güneş','kelebek']
 };
 
 /*
@@ -38,8 +37,6 @@ $(function() {
     canvas.isDrawingMode = 0;
     canvas.freeDrawingBrush.color = "black";
     canvas.freeDrawingBrush.width = 7;
-    console.log("WIDTH: " + canvas.width);
-    console.log("HEIGHT: " + canvas.height);
     canvas.renderAll();
     //setup listeners 
     canvas.on('mouse:up', function(e) {
@@ -61,8 +58,6 @@ $(function() {
       }));
 
     fabric.Image.fromURL('static/home2x.png', function(img) {
-        console.log("getRightX", getRightX())
-        console.log("window.innerWidth - 100", window.innerWidth - 100)
         oImg = img.set({
             selectable: true,
             left: getLeftX(),
@@ -73,8 +68,6 @@ $(function() {
     });
 
     fabric.Image.fromURL('static/erase2x.png', function(img) {
-        console.log("getRightX", getRightX())
-        console.log("window.innerWidth - 100", window.innerWidth - 100)
         oImg = img.set({
             selectable: true,
             left: getRightX() - DEFAULT_MARGIN_X * 4,
@@ -85,8 +78,6 @@ $(function() {
     });
 
     fabric.Image.fromURL('static/back2x.png', function(img) {
-        console.log("getRightX", getRightX())
-        console.log("window.innerWidth - 100", window.innerWidth - 100)
         oImg = img.set({
             selectable: true,
             left: getRightX() - DEFAULT_MARGIN_X * 2.2,
@@ -97,8 +88,6 @@ $(function() {
     });
 
     fabric.Image.fromURL('static/next2x.png', function(img) {
-        console.log("getRightX", getRightX())
-        console.log("window.innerWidth - 100", window.innerWidth - 100)
         oImg = img.set({
             selectable: true,
             left: getRightX(),
@@ -286,7 +275,7 @@ function success(data) {
         let symbol = lst[i]
         classNames[i] = symbol
     }
-    objectToDraw = translate(classNames[Math.floor(Math.random() * classNames.length)]);
+    objectToDraw = translate(partial_dictionary.english[Math.floor(Math.random() * partial_dictionary.english.length)]);
     if (modelLoaded)
         setDrawThis(objectToDraw);
 }
@@ -374,10 +363,10 @@ function allowDrawing() {
 clear the canvas 
 */
 function erase() {
+    console.log("erase");
     canvas.clear();
     canvas.backgroundColor = '#ffffff';
     coords = [];
-    console.log("erase");
     setMessage("");
 }
 
@@ -386,21 +375,22 @@ function next() {
 }
 
 function setDrawThis(word) {
-    console.log("setTitle");
-    drawThisLabel = '"' + word.toUpperCase() + '" çizer misin?';
-    if (word === "") return; 
+    console.log("setDrawThis: ", word);
+    if (word === "" || word === undefined) return;
+
+    drawThisLabel = '>>  "' + word.toUpperCase() + '" çizer misin?';
 
     var drawThisText = new fabric.Text(drawThisLabel, {
-        left: getCenterX,
-        top: 50,
+        left: getLeftX() + DEFAULT_MARGIN_X * 3.5,
+        top: getTopY(),
         fontFamily: 'BloggerSans',
-        fontSize: '40'
+        fontSize: '25'
       });
     canvas.add(drawThisText);
 }
 
 function setMessage(message) {
-    console.log("setTitle");
+    console.log("setMessage");
     document.getElementById('i-see-things').innerHTML = message;
     if (message === "") return; 
 
@@ -409,8 +399,8 @@ function setMessage(message) {
     }
 
     messageText = new fabric.Text(message, {
-        left: 200,
-        top: 120,
+        left: getCenterX() - DEFAULT_MARGIN_X * 7,
+        top: getUpperY() - DEFAULT_MARGIN_Y * 2,
         fontFamily: 'BloggerSans',
         fontSize: '25'
       });

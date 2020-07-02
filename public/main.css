@@ -31,3 +31,8 @@
     background: #007AFF;
     cursor: pointer;
 }
+
+@font-face {
+    font-family: BloggerSans;
+    src: url('static/fonts/BloggerSans');
+}
