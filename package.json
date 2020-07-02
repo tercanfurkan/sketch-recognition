@@ -1,8 +1,8 @@
 {
-  "name": "Cizim-Tahmin-0.3.4",
-  "version": "0.3.4",
+  "name": "CizimTahmin",
+  "version": "0.3.5",
   "private": true,
-  "productName": "Cizim Tanıma-0.3.4",
+  "productName": "Cizim Tanıma",
   "main": "electron/main.js",
   "homepage": "./",
   "dependencies": {
