@@ -37,16 +37,56 @@
 
   <!-- main css -->
   <link rel="stylesheet" href="main.css">
+  <!-- intro css -->
+  <link rel="stylesheet" href="intro.css">
+  <!-- intro2 css -->
+  <link rel="stylesheet" href="start.css">
 
 </head>
 
-<body>
-  <canvas id="canvas" class="canvas"></canvas>
-  <h4 id='i-see-things'></h4>
+<body>  
+  <div id="container">
+    <div id="top-menu">
+      <span id="title">YAPAY ZEKA</span>
+    </div>
+    <div id="message-menu">
+      <span id="message">Başla</span>
+    </div>
+    <div id="intro">
+      <div id="top-menu">
+        <span id="intro-title">YAPAY ZEKA</span>
+      </div>
+      <div class="center-dialog" id="intro-center">
+        <div class="dialog-header">Çiziyorsun?</div>
+        <div class="dialog-body">Yapay zeka sizin ne çizdiğinizi tahmin ediyor.<br>Pekçok kişiden alınan istatistiksel<br>veriye dayanarak ne çizdiğinizi siz<br>çizimi bitirmeden anlayan yapay<br>zeka ağını siz de keşfedin</div>
+        <div><img id="start-drawing-btn" onclick="onStartDrawing()" src="static/cizmeye_basla2x.png"></div>
+      </div>
+      <div class="center-dialog" id="start-center" style="display: none;">
+        <div class="dialog-header" id="your-drawing-text">İlk Çizimin</div>
+        <div id="object-to-draw">KEDİ</div>
+        <div><img id="ok-button" onclick="onOkClick()" src="static/tamam2x.png"></div>
+      </div>
+    </div>
+    <div id="bottom-menu">
+      <div id="home">      
+          <img onclick="home()" src="static/home2x.png">
+      </div>
+      <div id="erase">
+        <img onclick="erase()" src="static/erase2x.png">
+      </div>
+      <div id="back">
+        <img onclick="back()" src="static/back2x.png">       
+      </div>
+      <div id="next">
+        <img onclick="next()" src="static/next2x.png">        
+      </div>
+    </div>
+    <canvas id="canvas" class="canvas"></canvas>
+</div>
 </body>
 <script>
   console.log('starting');
-  //start('en')
+  start('en')
 </script>
 
 </html>

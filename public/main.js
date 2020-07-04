@@ -9,7 +9,6 @@ var mousePressed = false;
 
 let objectToDraw = "";
 let modelLoaded = false;
-let drawMode = false;
 let drawThisLabel = "Model yükleniyor..";
 let messageText = "";
 let initialState = true;
@@ -34,12 +33,13 @@ const partial_dictionary = { // 21
 };
 
 $(function() {
+    document.documentElement.style.overflow = 'hidden';  // firefox, chrome
     init();
 })
 
 function init() {
     initCanvas();
-    initDrawThisCanvas();
+    initDrawingCanvas();
 }
 
 /*
@@ -49,45 +49,21 @@ prepare the drawing canvas
 function initCanvas() {
     console.log("initCanvas");
     canvas = window._canvas = new fabric.Canvas('canvas');
+    canvas.historyInit();
     canvas.setWidth(window.innerWidth);
     canvas.setHeight(window.innerHeight);
 }
 
-function initDrawThisCanvas() {
-    console.log("initDrawThisCanvas")
-    canvas.backgroundColor = '#1878BB';
-    setDrawMode(false);
-
-    drawTitle('white')
-    drawNextDrawingScreen();
-}
-
-function onOkClick() {
-    console.log("onOkClick");
-    loadDrawCanvas();
-}
-function loadDrawCanvas() {
-    console.log("loadDrawCanvas")
-    canvas.clear();
-    initDrawingCanvas()
-    initDrawingCanvasDrawings()
-    start('en')
-}
-
-function setDrawMode(mode) {
-    drawMode = mode;
-    canvas.isDrawingMode = mode ? 1 : 0
-}
-
+let coordsHistory = [];
 function initDrawingCanvas() {
     canvas.backgroundColor = '#ffffff';
     canvas.freeDrawingBrush.color = '#1878BB';
     canvas.renderAll();
     canvas.freeDrawingBrush.width = 7;
-    if (initialState) {
         //setup listeners 
         canvas.on('mouse:up', function(e) {
             getFrame();
+            coordsHistory.push(coords);
             mousePressed = false
         });
         canvas.on('mouse:down', function(e) {
@@ -96,73 +72,27 @@ function initDrawingCanvas() {
         canvas.on('mouse:move', function(e) {
             recordCoor(e)
         });
-    }
-}
-
-function initDrawingCanvasDrawings() {
-
-    fabric.Image.fromURL('static/home2x.png', function(img) {
-        const oImg = img.set({
-            selectable: true,
-            left: getLeftX(),
-            top: getBottomY('normal'),
-        })
-        canvas.add(oImg); //add new image to canvas
-        oImg.on('mousedown',next); //add mouse down lisner to image
-    });
-
-    fabric.Image.fromURL('static/erase2x.png', function(img) {
-        const oImg = img.set({
-            selectable: true,
-            left: getRightX() - DEFAULT_MARGIN_X * 4,
-            top: getBottomY('big'),
-        })
-        canvas.add(oImg); //add new image to canvas
-        oImg.on('mousedown',erase); //add mouse down lisner to image
-    });
-
-    fabric.Image.fromURL('static/back2x.png', function(img) {
-        const backImage = img.set({
-            selectable: true,
-            left: getRightX() - DEFAULT_MARGIN_X * 2.2,
-            top: getBottomY('normal'),
-        })
-        canvas.add(backImage); //add new image to canvas
-        backImage.on('mousedown',next); //add mouse down lisner to image
-    });
-
-    fabric.Image.fromURL('static/next2x.png', function(img) {
-        const oImg = img.set({
-            selectable: true,
-            left: getRightX(),
-            top: getBottomY('small'),
-        })
-        canvas.add(oImg); //add new image to canvas
-        oImg.on('mousedown',next); //add mouse down lisner to image
-    });
-    drawTitle('#1878BB')
 }
 
 /*
 set the table of the predictions 
 */
 function setTable(top5, probs) {
+    console.log("setTable, classList contains drawThis: ", objectToDraw);
+    console.log('top5', top5);
+    console.log('probs', probs);
     let classList = [];
     if (modelLoaded) {
         var counter = 0
         top5.forEach(element => {
-            console.log(element)
-            console.log(probs[counter])
             classList.push(translate(element))
         });
-        console.log("setTable, classList: ", classList);
-        console.log("setTable, classList contains drawThis: ", objectToDraw);
         if (classList.length === 0) {
             setMessage("")
         } else if (classList.includes(objectToDraw)) {
             setMessage('Bu bir "' + toLocaleUpperCase(objectToDraw) + '"!');
         } else {
-            setMessage('"' + toLocaleUpperCase(classList.slice(0,3).join('", "')) + '" Çiziyorsun...');
+            setMessage('"' + toLocaleUpperCase(classList.slice(0,3).join('", "')) + '"  çiziyorsun...');
         }
     }
 }
@@ -171,8 +101,6 @@ function setTable(top5, probs) {
 record the current drawing coordinates
 */
 function recordCoor(event) {
-    if (!drawMode) return;
-
     var pointer = canvas.getPointer(event.e);
     var posX = pointer.x;
     var posY = pointer.y;
@@ -229,7 +157,6 @@ function getImageData() {
 get the prediction 
 */
 function getFrame() {
-    if (!drawMode) return;
     //make sure we have at least two recorded coordinates 
     if (coords.length >= 2) {
 
@@ -273,8 +200,11 @@ async function loadDict() {
 }
 
 function getObjectToDraw() {
+    console.log("getObjectToDraw")
     const drawThisEng = partial_dictionary.english[Math.floor(Math.random() * partial_dictionary.english.length)]
-    return translate(drawThisEng);
+    const drawThisTurkish = translate(drawThisEng);
+    document.getElementById("object-to-draw").innerHTML = toLocaleUpperCase(drawThisTurkish);
+    return drawThisTurkish;
 }
 
 /*
@@ -362,111 +292,71 @@ async function start(cur_mode) {
 allow drawing on canvas
 */
 function allowDrawing() {
-    setDrawMode(true);
+    canvas.isDrawingMode = 1
     modelLoaded = true;
-}
-
-/*
-clear the canvas 
-*/
-function erase() {
-    console.log("erase");
-    canvas.clear();
-    canvas.backgroundColor = '#ffffff';
-    coords = [];
-    initDrawingCanvasDrawings()
-}
-
-function next() {
-    console.log("next")
-    initialState = false;
-    canvas.removeListeners();
-    canvas.clear();
-    init();
-    //initDrawThisCanvas();
 }
 
 function setMessage(message) {
     console.log("setMessage");
-    document.getElementById('i-see-things').innerHTML = message;
     if (message === "") return; 
 
-    if (messageText !== "") {
-        canvas.remove(messageText)
-    }
-
-    messageText = new fabric.Text(message, {
-        left: getCenterX(),
-        top: getUpperY() - DEFAULT_MARGIN_Y * 2,
-        originX: 'center',
-        fontFamily: 'BloggerSans-light-italic',
-        fontSize: '16',
-        fontWeight: 'bold',
-        fill: '#1878BB',
-        shadow: 'rgba(0,0,0,0.3) 1px 1px 1px'
-      });
-    canvas.add(messageText);
+    document.getElementById("message").innerHTML = message;
+    document.getElementById("message").style.textShadow = "2px 2px 2px rgba(0, 0, 0, 0.3)";
+    document.getElementById("message").style.color = "#1878BB";
 }
 
-// COMPONENTS
-function drawTitle(fill) {
-    console.log("drawTitle");
-    canvas.add(new fabric.Text(AI_TITLE_TEXT, {
-        left: getLeftX(),
-        top: getTopY(),
-        fontFamily: 'BloggerSans',
-        fontSize: '30',
-        fontWeight: 'bold',
-        fill: fill,
-        shadow: 'rgba(0,0,0,0.3) 1px 1px 1px'
-      }
-    ));
-}
+// CONTROLS
 
-function drawNextDrawingScreen() {
-    console.log("drawNextDrawingScreen")
-    const drawThisTitle = initialState ? FIRST_DRAWING_TEXT : NEXT_DRAWING_TEXT
-
-    canvas.add(new fabric.Text(drawThisTitle, {
-        left: getCenterX(),
-        top: getCenterY() - DEFAULT_MARGIN_Y * 2.5,
-        originX: 'center',
-        originY: 'center',
-        fontFamily: 'BloggerSans',
-        fontSize: '26',
-        fill: 'white',
-        shadow: 'rgba(0,0,0,0.3) 1px 1px 1px',
-      }));
-      console.log("1")
-
+// INTRO SCREEN CONTROLS
+function onStartDrawing(){
+    document.getElementById("intro-center").style.display = "none";
+    document.getElementById("start-center").style.display = "block"; 
     objectToDraw = getObjectToDraw();
-    canvas.add(new fabric.Text(toLocaleUpperCase(objectToDraw), {
-        left: getCenterX(),
-        top: getCenterY(),
-        originX: 'center',
-        originY: 'center',
-        fontFamily: 'BloggerSans',
-        fontSize: '75',
-        fontWeight: 'bold',
-        fill: 'white',
-        shadow: 'rgba(0,0,0,0.3) 1px 1px 1px'
-    }));
-    console.log("2")
+}
 
-    fabric.Image.fromURL('static/tamam2x.png', function(img) {
-        const okImage = img.set({
-            selectable: true,
-            left: getCenterX(),
-            top: getCenterY() + DEFAULT_MARGIN_Y * 2.5,
-            originX: 'center',
-            originY: 'center',
-        })
-        okImage.scaleToWidth(150);
-        canvas.add(okImage); //add new image to canvas
-        okImage.on('mousedown', onOkClick); //add mouse down lisner  to image
-    });
+// START SCREEN CONTROLS
 
-    console.log("3")
+function onOkClick() {
+    console.log("onOkClick");
+    document.getElementById("intro").style.display = "none";
+}
+
+// DRAW SCREEN CONTROLS
+function erase() {
+    console.log("erase");
+    coords = [];
+    canvas.clear();
+    document.getElementById("message").innerHTML = "Başla";
+    document.getElementById("message").style.textShadow = "";
+    document.getElementById("message").style.color = "white";
+    canvas.backgroundColor = '#ffffff';
+}
+
+function next() {
+    console.log("next")
+    coords = [];
+    canvas.clear();
+    canvas.backgroundColor = '#ffffff';
+    objectToDraw = getObjectToDraw();
+    document.getElementById("your-drawing-text").innerHTML = NEXT_DRAWING_TEXT;
+    document.getElementById("intro").style.display = "block";
+}
+
+function back() {
+    console.log("back");
+    console.log(coordsHistory);
+    if (coordsHistory.length === 0) return;
+    console.log("coords", coords);
+    document.getElementById("message").innerHTML = "Başla";
+    document.getElementById("message").style.textShadow = "";
+    document.getElementById("message").style.color = "white";
+    coordsHistory.pop();
+    coords = coordsHistory.length !== 0 ? coordsHistory[coordsHistory.length - 1].slice() : [];
+    canvas.undo();
+}
+
+function home() {
+    window.location.reload(false); 
 }
 
 // HELPERS
@@ -523,5 +413,47 @@ function getBottomY(size) {
         default:
             return getHeight() - DEFAULT_MARGIN_Y * 2.5;
     }
+}
+
+// CANVAS HELPERS
+
+fabric.Canvas.prototype.historyInit = function () {
+    this.historyUndo = [];
+    this.historyNextState = this.historyNext();
+  
+    this.on({
+      "object:added": this.historySaveAction,
+      "object:removed": this.historySaveAction,
+      "object:modified": this.historySaveAction
+    })
+  }
+  
+fabric.Canvas.prototype.historyNext = function () {
+return JSON.stringify(this.toDatalessJSON(this.extraProps));
+}
+
+fabric.Canvas.prototype.historySaveAction = function () {
+if (this.historyProcessing)
+    return;
+
+const json = this.historyNextState;
+this.historyUndo.push(json);
+this.historyNextState = this.historyNext();
+}
+
+fabric.Canvas.prototype.undo = function () {
+    console.log("undo");
+    console.log(coordsHistory.length);
+    // The undo process will render the new states of the objects
+    // Therefore, object:added and object:modified events will triggered again
+    // To ignore those events, we are setting a flag.
+    this.historyProcessing = true;
+
+    const history = this.historyUndo.pop();
+    if (history) {
+        this.loadFromJSON(history).renderAll();
+    }
+
+    this.historyProcessing = false;
 }
 
