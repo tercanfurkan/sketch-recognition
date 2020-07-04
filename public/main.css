@@ -34,5 +34,15 @@
 
 @font-face {
     font-family: BloggerSans;
-    src: url('static/fonts/BloggerSans');
+    src: url('static/fonts/BloggerSans.ttf');
+}
+
+@font-face {
+    font-family: BloggerSans-light-italic;
+    src: url('static/fonts/BloggerSans-light-italic.otf');
+}
+
+@font-face {
+    font-family: BloggerSans-light;
+    src: url('static/fonts/BloggerSans-light.otf');
 }

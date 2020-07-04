@@ -2,20 +2,27 @@
 variables
 */
 var model;
-var canvas;
+var canvas = null;
 var classNames = [];
 var coords = [];
 var mousePressed = false;
 
 let objectToDraw = "";
 let modelLoaded = false;
+let drawMode = false;
 let drawThisLabel = "Model yükleniyor..";
 let messageText = "";
+let initialState = true;
 
 const DEFAULT_MARGIN_X = 50;
 const DEFAULT_MARGIN_Y = 50;
 
-const titleText = "YAPAY ZEKA"
+// styling
+const introScreenBackgroundColor = '#1878BB'
+
+const AI_TITLE_TEXT = "YAPAY ZEKA"
+const FIRST_DRAWING_TEXT = "İlk Çizimin";
+const NEXT_DRAWING_TEXT = "Sıradaki Çizimin";
 
 const dictionary = { // 50
     "english": ['umbrella', 'square', 'spider', 'cat', 'butterfly', 'table', 'airplane', 'lightning', 'bench', 'spoon', 'shorts', 'bird', 'tennis_racquet', 'hot_dog', 'power_outlet', 'cell_phone', 'knife', 'rainbow', 'bread', 'bed', 'headphones', 'hat', 'baseball', 'cookie', 'microphone', 'apple', 'key', 'basketball', 'eyeglasses', 'eye', 'line', 'triangle', 'book', 'pizza', 'circle', 'mushroom', 'face', 'snake', 'flower', 'dumbbell', 'traffic_light', 'ice_cream', 'hammer', 'moon', 'rifle', 'radio', 'donut', 'moustache', 'camera', 'pillow', 'banana', 'bridge', 'campfire', 'clock', 'diamond', 'door', 'envelope' , 'fish', 'hand', 'house', 'mountain', 'mushroom', 'pear', 'sun', 'toothbrush', 'tree', 'wheel', 'pencil'],
@@ -26,39 +33,76 @@ const partial_dictionary = { // 21
     "turkish": ['armut','bıyık','cep telefonu','kedi','kulaklık','kuş','priz','çizgi','çekiç','ekmek','kare','ev','kaşık','şemsiye','saat','göz','yıldırım','el','örümcek','üçgen','güneş','kelebek']
 };
 
+$(function() {
+    init();
+})
+
+function init() {
+    initCanvas();
+    initDrawThisCanvas();
+}
+
 /*
 prepare the drawing canvas 
 */
-$(function() {
+
+function initCanvas() {
+    console.log("initCanvas");
     canvas = window._canvas = new fabric.Canvas('canvas');
     canvas.setWidth(window.innerWidth);
     canvas.setHeight(window.innerHeight);
-    canvas.backgroundColor = '#ffffff';
-    canvas.isDrawingMode = 0;
-    canvas.freeDrawingBrush.color = "black";
-    canvas.freeDrawingBrush.width = 7;
-    canvas.renderAll();
-    //setup listeners 
-    canvas.on('mouse:up', function(e) {
-        getFrame();
-        mousePressed = false
-    });
-    canvas.on('mouse:down', function(e) {
-        mousePressed = true
-    });
-    canvas.on('mouse:move', function(e) {
-        recordCoor(e)
-    });
+}
 
-    canvas.add(new fabric.Text(titleText, {
-        left: getLeftX(),
-        top: getTopY(),
-        fontFamily: 'BloggerSans',
-        fontSize: '25'
-      }));
+function initDrawThisCanvas() {
+    console.log("initDrawThisCanvas")
+    canvas.backgroundColor = '#1878BB';
+    setDrawMode(false);
+
+    drawTitle('white')
+    drawNextDrawingScreen();
+}
+
+function onOkClick() {
+    console.log("onOkClick");
+    loadDrawCanvas();
+}
+function loadDrawCanvas() {
+    console.log("loadDrawCanvas")
+    canvas.clear();
+    initDrawingCanvas()
+    initDrawingCanvasDrawings()
+    start('en')
+}
+
+function setDrawMode(mode) {
+    drawMode = mode;
+    canvas.isDrawingMode = mode ? 1 : 0
+}
+
+function initDrawingCanvas() {
+    canvas.backgroundColor = '#ffffff';
+    canvas.freeDrawingBrush.color = '#1878BB';
+    canvas.renderAll();
+    canvas.freeDrawingBrush.width = 7;
+    if (initialState) {
+        //setup listeners 
+        canvas.on('mouse:up', function(e) {
+            getFrame();
+            mousePressed = false
+        });
+        canvas.on('mouse:down', function(e) {
+            mousePressed = true
+        });
+        canvas.on('mouse:move', function(e) {
+            recordCoor(e)
+        });
+    }
+}
+
+function initDrawingCanvasDrawings() {
 
     fabric.Image.fromURL('static/home2x.png', function(img) {
-        oImg = img.set({
+        const oImg = img.set({
             selectable: true,
             left: getLeftX(),
             top: getBottomY('normal'),
@@ -68,27 +112,27 @@ $(function() {
     });
 
     fabric.Image.fromURL('static/erase2x.png', function(img) {
-        oImg = img.set({
+        const oImg = img.set({
             selectable: true,
             left: getRightX() - DEFAULT_MARGIN_X * 4,
             top: getBottomY('big'),
         })
         canvas.add(oImg); //add new image to canvas
-        oImg.on('mousedown',next); //add mouse down lisner to image
+        oImg.on('mousedown',erase); //add mouse down lisner to image
     });
 
     fabric.Image.fromURL('static/back2x.png', function(img) {
-        oImg = img.set({
+        const backImage = img.set({
             selectable: true,
             left: getRightX() - DEFAULT_MARGIN_X * 2.2,
             top: getBottomY('normal'),
         })
-        canvas.add(oImg); //add new image to canvas
-        oImg.on('mousedown',next); //add mouse down lisner to image
+        canvas.add(backImage); //add new image to canvas
+        backImage.on('mousedown',next); //add mouse down lisner to image
     });
 
     fabric.Image.fromURL('static/next2x.png', function(img) {
-        oImg = img.set({
+        const oImg = img.set({
             selectable: true,
             left: getRightX(),
             top: getBottomY('small'),
@@ -96,70 +140,29 @@ $(function() {
         canvas.add(oImg); //add new image to canvas
         oImg.on('mousedown',next); //add mouse down lisner to image
     });
-})
-
-function getWidth() {
-    return window.innerWidth;
-}
-
-function getHeight() {
-    return window.innerHeight;
-}
-
-function getCenterX() {
-    return window.innerWidth / 2;
-}
-
-function getCenterY() { 
-    return window.innerHeight / 2;
-}
-
-function getUpperY() {
-    return getCenterY() / 2;
-}
-
-function getLeftX() {
-    return 0 + DEFAULT_MARGIN_X;
-}
-
-function getRightX() {
-    return getWidth() - DEFAULT_MARGIN_X * 2;
-}
-
-function getTopY() {
-    return 0 + DEFAULT_MARGIN_Y;
-}
-
-function getBottomY(size) {
-    switch (size) {
-        case 'big':
-            return getHeight() - DEFAULT_MARGIN_Y * 3;
-        case 'small':
-            return getHeight() - DEFAULT_MARGIN_Y * 2.2;
-        case 'normal':
-        default:
-            return getHeight() - DEFAULT_MARGIN_Y * 2.5;
-    }
+    drawTitle('#1878BB')
 }
 
 /*
 set the table of the predictions 
 */
 function setTable(top5, probs) {
-    console.log(top5);
-    console.log(probs);
     let classList = [];
     if (modelLoaded) {
+        var counter = 0
         top5.forEach(element => {
-            console.log(element);
-            classList.push(translate(element));
+            console.log(element)
+            console.log(probs[counter])
+            classList.push(translate(element))
         });
         console.log("setTable, classList: ", classList);
         console.log("setTable, classList contains drawThis: ", objectToDraw);
-        if (classList.includes(objectToDraw)) {
-            setMessage('Tebrikler, bu bir "' + objectToDraw.toUpperCase() + '"!');
+        if (classList.length === 0) {
+            setMessage("")
+        } else if (classList.includes(objectToDraw)) {
+            setMessage('Bu bir "' + toLocaleUpperCase(objectToDraw) + '"!');
         } else {
-            setMessage(classList.slice(0,3).join(', ').toUpperCase() + ' görüyorum');
+            setMessage('"' + toLocaleUpperCase(classList.slice(0,3).join('", "')) + '" Çiziyorsun...');
         }
     }
 }
@@ -168,6 +171,8 @@ function setTable(top5, probs) {
 record the current drawing coordinates
 */
 function recordCoor(event) {
+    if (!drawMode) return;
+
     var pointer = canvas.getPointer(event.e);
     var posX = pointer.x;
     var posY = pointer.y;
@@ -224,6 +229,7 @@ function getImageData() {
 get the prediction 
 */
 function getFrame() {
+    if (!drawMode) return;
     //make sure we have at least two recorded coordinates 
     if (coords.length >= 2) {
 
@@ -266,6 +272,11 @@ async function loadDict() {
     }).done(success);
 }
 
+function getObjectToDraw() {
+    const drawThisEng = partial_dictionary.english[Math.floor(Math.random() * partial_dictionary.english.length)]
+    return translate(drawThisEng);
+}
+
 /*
 load the class names
 */
@@ -275,9 +286,6 @@ function success(data) {
         let symbol = lst[i]
         classNames[i] = symbol
     }
-    objectToDraw = translate(partial_dictionary.english[Math.floor(Math.random() * partial_dictionary.english.length)]);
-    if (modelLoaded)
-        setDrawThis(objectToDraw);
 }
 
 /*
@@ -354,9 +362,8 @@ async function start(cur_mode) {
 allow drawing on canvas
 */
 function allowDrawing() {
-    canvas.isDrawingMode = 1;
+    setDrawMode(true);
     modelLoaded = true;
-    setDrawThis(objectToDraw);
 }
 
 /*
@@ -367,26 +374,16 @@ function erase() {
     canvas.clear();
     canvas.backgroundColor = '#ffffff';
     coords = [];
-    setMessage("");
+    initDrawingCanvasDrawings()
 }
 
 function next() {
-    window.location.reload(false);
-}
-
-function setDrawThis(word) {
-    console.log("setDrawThis: ", word);
-    if (word === "" || word === undefined) return;
-
-    drawThisLabel = '>>  "' + word.toUpperCase() + '" çizer misin?';
-
-    var drawThisText = new fabric.Text(drawThisLabel, {
-        left: getLeftX() + DEFAULT_MARGIN_X * 3.5,
-        top: getTopY(),
-        fontFamily: 'BloggerSans',
-        fontSize: '25'
-      });
-    canvas.add(drawThisText);
+    console.log("next")
+    initialState = false;
+    canvas.removeListeners();
+    canvas.clear();
+    init();
+    //initDrawThisCanvas();
 }
 
 function setMessage(message) {
@@ -399,15 +396,132 @@ function setMessage(message) {
     }
 
     messageText = new fabric.Text(message, {
-        left: getCenterX() - DEFAULT_MARGIN_X * 7,
+        left: getCenterX(),
         top: getUpperY() - DEFAULT_MARGIN_Y * 2,
-        fontFamily: 'BloggerSans',
-        fontSize: '25'
+        originX: 'center',
+        fontFamily: 'BloggerSans-light-italic',
+        fontSize: '16',
+        fontWeight: 'bold',
+        fill: '#1878BB',
+        shadow: 'rgba(0,0,0,0.3) 1px 1px 1px'
       });
     canvas.add(messageText);
+}
+
+// COMPONENTS
+function drawTitle(fill) {
+    console.log("drawTitle");
+    canvas.add(new fabric.Text(AI_TITLE_TEXT, {
+        left: getLeftX(),
+        top: getTopY(),
+        fontFamily: 'BloggerSans',
+        fontSize: '30',
+        fontWeight: 'bold',
+        fill: fill,
+        shadow: 'rgba(0,0,0,0.3) 1px 1px 1px'
+      }
+    ));
+}
+
+function drawNextDrawingScreen() {
+    console.log("drawNextDrawingScreen")
+    const drawThisTitle = initialState ? FIRST_DRAWING_TEXT : NEXT_DRAWING_TEXT
+
+    canvas.add(new fabric.Text(drawThisTitle, {
+        left: getCenterX(),
+        top: getCenterY() - DEFAULT_MARGIN_Y * 2.5,
+        originX: 'center',
+        originY: 'center',
+        fontFamily: 'BloggerSans',
+        fontSize: '26',
+        fill: 'white',
+        shadow: 'rgba(0,0,0,0.3) 1px 1px 1px',
+      }));
+      console.log("1")
+
+    objectToDraw = getObjectToDraw();
+    canvas.add(new fabric.Text(toLocaleUpperCase(objectToDraw), {
+        left: getCenterX(),
+        top: getCenterY(),
+        originX: 'center',
+        originY: 'center',
+        fontFamily: 'BloggerSans',
+        fontSize: '75',
+        fontWeight: 'bold',
+        fill: 'white',
+        shadow: 'rgba(0,0,0,0.3) 1px 1px 1px'
+    }));
+    console.log("2")
+
+    fabric.Image.fromURL('static/tamam2x.png', function(img) {
+        const okImage = img.set({
+            selectable: true,
+            left: getCenterX(),
+            top: getCenterY() + DEFAULT_MARGIN_Y * 2.5,
+            originX: 'center',
+            originY: 'center',
+        })
+        okImage.scaleToWidth(150);
+        canvas.add(okImage); //add new image to canvas
+        okImage.on('mousedown', onOkClick); //add mouse down lisner  to image
+    });
+
+    console.log("3")
+}
+
+// HELPERS
+
+function toLocaleUpperCase(text) {
+    if (text === undefined) return;
+    return text.toLocaleUpperCase('tr-TR');
 }
 
 function translate(word) {
     index = dictionary.english.indexOf(word);
     return dictionary.turkish[index];
 }
+
+function getWidth() {
+    return window.innerWidth;
+}
+
+function getHeight() {
+    return window.innerHeight;
+}
+
+function getCenterX() {
+    return window.innerWidth / 2;
+}
+
+function getCenterY() { 
+    return window.innerHeight / 2;
+}
+
+function getUpperY() {
+    return getCenterY() / 2;
+}
+
+function getLeftX() {
+    return 0 + DEFAULT_MARGIN_X;
+}
+
+function getRightX() {
+    return getWidth() - DEFAULT_MARGIN_X * 2;
+}
+
+function getTopY() {
+    return 0 + DEFAULT_MARGIN_Y;
+}
+
+function getBottomY(size) {
+    switch (size) {
+        case 'big':
+            return getHeight() - DEFAULT_MARGIN_Y * 3;
+        case 'small':
+            return getHeight() - DEFAULT_MARGIN_Y * 2.2;
+        case 'normal':
+        default:
+            return getHeight() - DEFAULT_MARGIN_Y * 2.5;
+    }
+}
+
