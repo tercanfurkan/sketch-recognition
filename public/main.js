@@ -149,20 +149,6 @@ function getImageData() {
         const dpi = window.devicePixelRatio
         const imgData = canvas.contextContainer.getImageData(mbb.min.x * dpi, mbb.min.y * dpi,
                                                       (mbb.max.x - mbb.min.x) * dpi, (mbb.max.y - mbb.min.y) * dpi);
-
-        const dataURL = canvas.toDataURL({
-            width: canvas.width,
-            height: canvas.height,
-            left: 0,
-            top: 0,
-            format: 'png',
-        });
-        const link = document.createElement('a');
-        link.download = 'image.png';
-        link.href = dataURL;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
         return imgData
     }
 
@@ -444,6 +430,23 @@ function getBottomY(size) {
 }
 
 // CANVAS HELPERS
+
+function downloadCanvasImage() {
+    // take a canvas screenshot and download
+    const dataURL = canvas.toDataURL({
+        width: canvas.width,
+        height: canvas.height,
+        left: 0,
+        top: 0,
+        format: 'png',
+    });
+    const link = document.createElement('a');
+    link.download = 'image.png';
+    link.href = dataURL;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
 
 fabric.Canvas.prototype.historyInit = function () {
     this.historyUndo = [];
