@@ -1,6 +1,6 @@
 {
   "name": "CizimTahmin",
-  "version": "0.3.5",
+  "version": "0.4.0",
   "private": true,
   "productName": "Cizim Tanıma",
   "main": "electron/main.js",

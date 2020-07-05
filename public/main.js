@@ -78,7 +78,6 @@ function initDrawingCanvas() {
 set the table of the predictions 
 */
 function setTable(top5, probs) {
-    console.log("setTable, classList contains drawThis: ", objectToDraw);
     console.log('top5', top5);
     console.log('probs', probs);
     let classList = [];
@@ -202,7 +201,9 @@ async function loadDict() {
 function getObjectToDraw() {
     console.log("getObjectToDraw")
     const drawThisEng = partial_dictionary.english[Math.floor(Math.random() * partial_dictionary.english.length)]
+    console.log("en", drawThisEng);
     const drawThisTurkish = translate(drawThisEng);
+    console.log("tr", drawThisTurkish);
     document.getElementById("object-to-draw").innerHTML = toLocaleUpperCase(drawThisTurkish);
     return drawThisTurkish;
 }
@@ -307,6 +308,13 @@ function setMessage(message) {
 
 // CONTROLS
 
+// ENTER APP
+
+function onEnterApp() {
+    console.log("onEnterApp()");
+    document.getElementById("bg").style.display = "none";
+}
+
 // INTRO SCREEN CONTROLS
 function onStartDrawing(){
     document.getElementById("intro-center").style.display = "none";
@@ -324,19 +332,12 @@ function onOkClick() {
 // DRAW SCREEN CONTROLS
 function erase() {
     console.log("erase");
-    coords = [];
-    canvas.clear();
-    document.getElementById("message").innerHTML = "Başla";
-    document.getElementById("message").style.textShadow = "";
-    document.getElementById("message").style.color = "white";
-    canvas.backgroundColor = '#ffffff';
+    clearCanvas();
 }
 
 function next() {
     console.log("next")
-    coords = [];
-    canvas.clear();
-    canvas.backgroundColor = '#ffffff';
+    clearCanvas();
     objectToDraw = getObjectToDraw();
     document.getElementById("your-drawing-text").innerHTML = NEXT_DRAWING_TEXT;
     document.getElementById("intro").style.display = "block";
@@ -344,15 +345,28 @@ function next() {
 
 function back() {
     console.log("back");
-    console.log(coordsHistory);
-    if (coordsHistory.length === 0) return;
-    console.log("coords", coords);
+    console.log(coordsHistory.length);
+    if (coordsHistory.length <= 1) {
+        clearCanvas();
+        return;
+    } else {
+        document.getElementById("message").innerHTML = "Başla";
+        document.getElementById("message").style.textShadow = "";
+        document.getElementById("message").style.color = "white";
+        coordsHistory.pop();
+        coords = coordsHistory.length !== 0 ? coordsHistory[coordsHistory.length - 1].slice() : [];
+        canvas.undo();
+    }
+}
+
+function clearCanvas() {
+    canvas.clear();
+    canvas.backgroundColor = '#ffffff';
+    coordsHistory = [];
+    coords = [];
     document.getElementById("message").innerHTML = "Başla";
     document.getElementById("message").style.textShadow = "";
     document.getElementById("message").style.color = "white";
-    coordsHistory.pop();
-    coords = coordsHistory.length !== 0 ? coordsHistory[coordsHistory.length - 1].slice() : [];
-    canvas.undo();
 }
 
 function home() {
@@ -443,7 +457,6 @@ this.historyNextState = this.historyNext();
 
 fabric.Canvas.prototype.undo = function () {
     console.log("undo");
-    console.log(coordsHistory.length);
     // The undo process will render the new states of the objects
     // Therefore, object:added and object:modified events will triggered again
     // To ignore those events, we are setting a flag.
