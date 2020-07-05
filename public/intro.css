@@ -13,14 +13,14 @@
     z-index: 10;
     width: 100%;
     height: 100%;
-    background-color: #1878BB;
+    background-image:url('static/blue_background.png');
+    background-size:100% 100%;
 }
 
 #intro-title {
-    font-size: 20px;
+    font-size: 25pt;
     position: absolute;
     z-index: 5;
-    font-size: 30;
     font-family: BloggerSans;
     font-weight: bold;
     color: white; 
@@ -48,6 +48,7 @@
 
 .dialog-body {
     font-size: 22pt;
+    font-family: klavikaRegularPlain;
 }
 
 #start-drawing-btn {
@@ -60,4 +61,8 @@
 
 #ok-button {
     width: 240px;
+}
+
+#your-drawing-text {
+    font-family: BloggerSans-light;
 }
