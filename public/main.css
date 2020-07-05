@@ -143,7 +143,6 @@ canvas {
 }
 
 @font-face {
-    font-family: klavikaRegularPlain
+    font-family: klavikaRegularPlain;
     src: url('static/fonts/klavikaRegularPlain.otf');
 }
-klavikaregular-plain

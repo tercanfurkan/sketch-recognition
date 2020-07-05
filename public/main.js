@@ -25,12 +25,13 @@ const NEXT_DRAWING_TEXT = "Sıradaki Çizimin";
 
 const dictionary = { // 50
     "english": ['umbrella', 'square', 'spider', 'cat', 'butterfly', 'table', 'airplane', 'lightning', 'bench', 'spoon', 'shorts', 'bird', 'tennis_racquet', 'hot_dog', 'power_outlet', 'cell_phone', 'knife', 'rainbow', 'bread', 'bed', 'headphones', 'hat', 'baseball', 'cookie', 'microphone', 'apple', 'key', 'basketball', 'eyeglasses', 'eye', 'line', 'triangle', 'book', 'pizza', 'circle', 'mushroom', 'face', 'snake', 'flower', 'dumbbell', 'traffic_light', 'ice_cream', 'hammer', 'moon', 'rifle', 'radio', 'donut', 'moustache', 'camera', 'pillow', 'banana', 'bridge', 'campfire', 'clock', 'diamond', 'door', 'envelope' , 'fish', 'hand', 'house', 'mountain', 'mushroom', 'pear', 'sun', 'toothbrush', 'tree', 'wheel', 'pencil'],
-    "turkish": ['şemsiye','kare','örümcek','kedi','kelebek','masa','uçak','yıldırım','tezgah','kaşık','şort','kuş','tenis raketi','sosis','priz','cep telefonu','bıçak','gökkuşağı','ekmek','yatak','kulaklık','şapka','beyzbol','çerez','mikrofon','elma','anahtar','basketbol','gözlük','göz','çizgi','üçgen','kitap','pizza','daire','mantar','yüz','yılan','çiçek','dambıl','trafik ışığı','ice_cream','çekiç','ay','tüfek','radyo','donut','bıyık','kamera','yastık', 'muz', 'köprü', 'kamp ateşi', 'saat', 'elmas', 'kapı', 'zarf' , 'balık', 'el', 'ev', 'dağ', 'mantar', 'armut', 'güneş', 'diş fırçası', 'ağaç', 'tekerlek', 'kalem']
+    "turkish": ['şemsiye','kare','örümcek','kedi','kelebek','masa','uçak','yıldırım','tezgah','kaşık','şort','kuş','tenis raketi','sosis','priz','cep telefonu','bıçak','gökkuşağı','ekmek','yatak','kulaklık','şapka','beyzbol','çerez','mikrofon','elma','anahtar','basketbol','gözlük','göz','çizgi','üçgen','kitap','pizza','daire','mantar','yüz','yılan','çiçek','dambıl','trafik ışığı','dondurma','çekiç','ay','tüfek','radyo','tatlı çörek','bıyık','kamera','yastık', 'muz', 'köprü', 'kamp ateşi', 'saat', 'elmas', 'kapı', 'zarf' , 'balık', 'el', 'ev', 'dağ', 'mantar', 'armut', 'güneş', 'diş fırçası', 'ağaç', 'tekerlek', 'kalem']
 };
 const partial_dictionary = { // 21
-    "english": ['pear','moustache','cell_phone','cat,','headphones','bird','power_outlet','line','hammer','bread','square','house','spoon','umbrella','clock','eye','lightning','hand','spider','triangle','sun','butterfly'],
+    "english": ['pear','moustache','cell_phone','cat','headphones','bird','power_outlet','line','hammer','bread','square','house','spoon','umbrella','clock','eye','lightning','hand','spider','triangle','sun','butterfly'],
     "turkish": ['armut','bıyık','cep telefonu','kedi','kulaklık','kuş','priz','çizgi','çekiç','ekmek','kare','ev','kaşık','şemsiye','saat','göz','yıldırım','el','örümcek','üçgen','güneş','kelebek']
 };
+let randomList;
 
 $(function() {
     document.documentElement.style.overflow = 'hidden';  // firefox, chrome
@@ -38,8 +39,10 @@ $(function() {
 })
 
 function init() {
+    randomList = partial_dictionary.english.slice();
     initCanvas();
     initDrawingCanvas();
+    start('en');
 }
 
 /*
@@ -199,8 +202,13 @@ async function loadDict() {
 }
 
 function getObjectToDraw() {
-    console.log("getObjectToDraw")
-    const drawThisEng = partial_dictionary.english[Math.floor(Math.random() * partial_dictionary.english.length)]
+    console.log("getObjectToDraw");
+    if (randomList.length === 0) {
+        randomList = partial_dictionary.english.slice();
+    }
+    const indexToPick = Math.floor(Math.random() * randomList.length)
+    const drawThisEng = randomList[indexToPick];
+    randomList.splice(indexToPick, 1);
     console.log("en", drawThisEng);
     const drawThisTurkish = translate(drawThisEng);
     console.log("tr", drawThisTurkish);
