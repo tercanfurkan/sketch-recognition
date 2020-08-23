@@ -1,10 +1,16 @@
+// constants
+const MODEL_PATH = "model_35_50000";
+const PARTIAL_RANDOM_LIST = true;
+
 /*
 variables
 */
 var model;
 var canvas = null;
 var classNames = [];
+let classNamesTr = [];
 var coords = [];
+let randomList = [];
 var mousePressed = false;
 
 let objectToDraw = "";
@@ -13,25 +19,24 @@ let drawThisLabel = "Model yükleniyor..";
 let messageText = "";
 let initialState = true;
 
+// styling
 const DEFAULT_MARGIN_X = 50;
 const DEFAULT_MARGIN_Y = 50;
-
-// styling
 const introScreenBackgroundColor = '#1878BB'
 
+// UI TEXTS
 const AI_TITLE_TEXT = "YAPAY ZEKA"
 const FIRST_DRAWING_TEXT = "İlk Çizimin";
 const NEXT_DRAWING_TEXT = "Sıradaki Çizimin";
 
 const dictionary = { // 50
-    "english": ['umbrella', 'square', 'spider', 'cat', 'butterfly', 'table', 'airplane', 'lightning', 'bench', 'spoon', 'shorts', 'bird', 'tennis_racquet', 'hot_dog', 'power_outlet', 'cell_phone', 'knife', 'rainbow', 'bread', 'bed', 'headphones', 'hat', 'baseball', 'cookie', 'microphone', 'apple', 'key', 'basketball', 'eyeglasses', 'eye', 'line', 'triangle', 'book', 'pizza', 'circle', 'mushroom', 'face', 'snake', 'flower', 'dumbbell', 'traffic_light', 'ice_cream', 'hammer', 'moon', 'rifle', 'radio', 'donut', 'moustache', 'camera', 'pillow', 'banana', 'bridge', 'campfire', 'clock', 'diamond', 'door', 'envelope' , 'fish', 'hand', 'house', 'mountain', 'mushroom', 'pear', 'sun', 'toothbrush', 'tree', 'wheel', 'pencil'],
-    "turkish": ['şemsiye','kare','örümcek','kedi','kelebek','masa','uçak','yıldırım','tezgah','kaşık','şort','kuş','tenis raketi','sosis','priz','cep telefonu','bıçak','gökkuşağı','ekmek','yatak','kulaklık','şapka','beyzbol','çerez','mikrofon','elma','anahtar','basketbol','gözlük','göz','çizgi','üçgen','kitap','pizza','daire','mantar','yüz','yılan','çiçek','dambıl','trafik ışığı','dondurma','çekiç','ay','tüfek','radyo','tatlı çörek','bıyık','kamera','yastık', 'muz', 'köprü', 'kamp ateşi', 'saat', 'elmas', 'kapı', 'zarf' , 'balık', 'el', 'ev', 'dağ', 'mantar', 'armut', 'güneş', 'diş fırçası', 'ağaç', 'tekerlek', 'kalem']
+    "english": ['pear', 'moustache', 'cell phone', 'cat', 'headphones', 'bird', 'power outlet', 'line', 'hammer', 'bread', 'square', 'house', 'spoon', 'umbrella', 'clock', 'eye', 'lightning', 'hand', 'spider', 'triangle', 'envelope', 'door', 'flower', 'shorts', 'broom', 'bucket', 'bicycle', 'ant', 'cup', 'apple', 'crown', 'hat', 'radio', 'tree', 'banana'],
+    "turkish": ['armut', 'bıyık', 'cep telefonu', 'kedi', 'kulaklık', 'kuş', 'priz', 'çizgi', 'çekiç', 'ekmek', 'kare', 'ev', 'kaşık', 'şemsiye', 'saat', 'göz', 'yıldırım', 'el', 'örümcek', 'üçgen', 'zarf', 'kapı', 'çiçek', 'şort', 'süpürge', 'kova', 'bisiklet', 'karınca', 'fincan', 'elma', 'taç', 'şapka', 'radyo', 'ağaç', 'muz']
 };
-const partial_dictionary = { // 21
-    "english": ['pear','moustache','cell_phone','cat','headphones','bird','power_outlet','line','hammer','bread','square','house','spoon','umbrella','clock','eye','lightning','hand','spider','triangle','sun','butterfly'],
-    "turkish": ['armut','bıyık','cep telefonu','kedi','kulaklık','kuş','priz','çizgi','çekiç','ekmek','kare','ev','kaşık','şemsiye','saat','göz','yıldırım','el','örümcek','üçgen','güneş','kelebek']
+const partial_dictionary = { // 35
+    "english": ['pear', 'moustache', 'cell phone', 'cat', 'headphones', 'bird', 'power outlet', 'line', 'hammer', 'bread', 'square', 'house', 'spoon', 'umbrella', 'clock', 'eye', 'lightning', 'hand', 'spider', 'triangle', 'envelope', 'door', 'flower', 'shorts', 'broom', 'bucket', 'bicycle', 'ant', 'cup', 'apple', 'crown', 'hat', 'radio', 'tree', 'banana'],
+    "turkish": ['armut', 'bıyık', 'cep telefonu', 'kedi', 'kulaklık', 'kuş', 'priz', 'çizgi', 'çekiç', 'ekmek', 'kare', 'ev', 'kaşık', 'şemsiye', 'saat', 'göz', 'yıldırım', 'el', 'örümcek', 'üçgen', 'zarf', 'kapı', 'çiçek', 'şort', 'süpürge', 'kova', 'bisiklet', 'karınca', 'fincan', 'elma', 'taç', 'şapka', 'radyo', 'ağaç', 'muz']
 };
-let randomList;
 
 $(function() {
     document.documentElement.style.overflow = 'hidden';  // firefox, chrome
@@ -39,7 +44,6 @@ $(function() {
 })
 
 function init() {
-    randomList = partial_dictionary.english.slice();
     initCanvas();
     initDrawingCanvas();
     start('en');
@@ -60,20 +64,39 @@ function initCanvas() {
 let coordsHistory = [];
 function initDrawingCanvas() {
     canvas.backgroundColor = '#ffffff';
+    canvas.freeDrawingBrush = new fabric['PencilBrush'](canvas);
     canvas.freeDrawingBrush.color = '#1878BB';
     canvas.renderAll();
     canvas.freeDrawingBrush.width = 7;
         //setup listeners 
         canvas.on('mouse:up', function(e) {
+            console.log("mouse up");
             getFrame();
             coordsHistory.push(coords);
             mousePressed = false
         });
         canvas.on('mouse:down', function(e) {
+            console.log("mouse down");
             mousePressed = true
         });
         canvas.on('mouse:move', function(e) {
+            console.log("mouse move");
             recordCoor(e)
+        });
+        canvas.on('touch:drag', function(e) {
+            console.log("touch:drag");
+        });
+        canvas.on('touch:orientation', function(e) {
+            console.log("touch:orientation");
+        });
+        canvas.on('touch:shake', function(e) {
+            console.log("touch:shake");
+        });
+        canvas.on('touch:gesture', function(e) {
+            console.log("touch:gesture");
+        });
+        canvas.on('touch:longpress', function(e) {
+            console.log("touch:longpress");
         });
 }
 
@@ -83,11 +106,15 @@ set the table of the predictions
 function setTable(top5, probs) {
     console.log('top5', top5);
     console.log('probs', probs);
+    console.log("setTable, objectToDraw: ", objectToDraw)
     let classList = [];
     if (modelLoaded) {
-        var counter = 0
+        var index = 0
         top5.forEach(element => {
-            classList.push(translate(element))
+            if (probs[index] > 0.05) {
+                classList.push(element)
+                index++
+            }
         });
         if (classList.length === 0) {
             setMessage("")
@@ -171,7 +198,8 @@ function getFrame() {
         //find the top 5 predictions 
         const indices = findIndicesOfMax(pred, 5)
         const probs = findTopValues(pred, 5)
-        const names = getClassNames(indices)
+        const names = getClassNamesTr(indices)
+        console.log("getframe top5: ", getClassNames(indices))
 
         //set the table 
         setTable(names, probs)
@@ -183,9 +211,25 @@ function getFrame() {
 get the the class names 
 */
 function getClassNames(indices) {
+    console.log("getClassNamesTr");
     var outp = []
-    for (var i = 0; i < indices.length; i++)
+    for (var i = 0; i < indices.length; i++) {
+        console.log(classNames[indices[i]]);
         outp[i] = classNames[indices[i]]
+    }
+    return outp
+}
+
+/*
+get the the class names 
+*/
+function getClassNamesTr(indices) {
+    console.log("getClassNamesTr");
+    var outp = []
+    for (var i = 0; i < indices.length; i++) {
+        console.log(classNamesTr[indices[i]]);
+        outp[i] = classNamesTr[indices[i]]
+    }
     return outp
 }
 
@@ -193,27 +237,16 @@ function getClassNames(indices) {
 load the class names 
 */
 async function loadDict() {
-    loc = 'model3/class_names.txt'
     
     await $.ajax({
-        url: loc,
+        url: MODEL_PATH + '/class_names.txt',
         dataType: 'text',
     }).done(success);
-}
-
-function getObjectToDraw() {
-    console.log("getObjectToDraw");
-    if (randomList.length === 0) {
-        randomList = partial_dictionary.english.slice();
-    }
-    const indexToPick = Math.floor(Math.random() * randomList.length)
-    const drawThisEng = randomList[indexToPick];
-    randomList.splice(indexToPick, 1);
-    console.log("en", drawThisEng);
-    const drawThisTurkish = translate(drawThisEng);
-    console.log("tr", drawThisTurkish);
-    document.getElementById("object-to-draw").innerHTML = toLocaleUpperCase(drawThisTurkish);
-    return drawThisTurkish;
+    
+    await $.ajax({
+        url: MODEL_PATH + '/class_names_tr.txt',
+        dataType: 'text',
+    }).done(successTr);
 }
 
 /*
@@ -225,6 +258,18 @@ function success(data) {
         let symbol = lst[i]
         classNames[i] = symbol
     }
+}
+
+/*
+load the class names
+*/
+function successTr(data) {
+    const lst = data.split(/\n/)
+    for (var i = 0; i < lst.length - 1; i++) {
+        let symbol = lst[i]
+        classNamesTr[i] = symbol
+    }
+    console.log("classNamesTr complete: ", classNamesTr);
 }
 
 /*
@@ -285,7 +330,7 @@ async function start(cur_mode) {
     mode = cur_mode
     
     //load the model 
-    model = await tf.loadLayersModel('model3/model.json')
+    model = await tf.loadLayersModel(MODEL_PATH + '/model.json')
     
     //warm up 
     model.predict(tf.zeros([1, 28, 28, 1]))
@@ -301,8 +346,31 @@ async function start(cur_mode) {
 allow drawing on canvas
 */
 function allowDrawing() {
+    console.log("allowDrawing");
     canvas.isDrawingMode = 1
     modelLoaded = true;
+}
+
+function initRandomList() {
+    console.log("initRandomList", classNamesTr);
+    if (PARTIAL_RANDOM_LIST) {
+        return partial_dictionary.turkish.slice();
+    } else {
+        return classNamesTr.slice();
+    }
+}
+
+function getObjectToDraw() {
+    console.log("getObjectToDraw", randomList);
+    if (randomList.length === 0) {
+        randomList = initRandomList();
+    }
+    const indexToPick = Math.floor(Math.random() * randomList.length)
+    const drawThis = randomList[indexToPick];
+    randomList.splice(indexToPick, 1);
+    console.log("drawThis is set to: ", drawThis);
+    document.getElementById("object-to-draw").innerHTML = toLocaleUpperCase(drawThis);
+    return drawThis;
 }
 
 function setMessage(message) {
@@ -325,6 +393,8 @@ function onEnterApp() {
 
 // INTRO SCREEN CONTROLS
 function onStartDrawing(){
+    if (classNamesTr.length === 0) return;
+
     document.getElementById("intro-center").style.display = "none";
     document.getElementById("start-center").style.display = "block"; 
     objectToDraw = getObjectToDraw();
