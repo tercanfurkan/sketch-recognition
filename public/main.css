@@ -82,42 +82,38 @@ canvas {
 #bottom-menu {
     position: absolute;
     z-index: 4;
-    bottom: 0px;
+    bottom: 15px;
     left: 0px;
     width: 100%;
     height: 140px;
 }
 
 #home {
-    top: 50%;
-    transform: translateY(-50%);
+    bottom: 0;
     left: 50px;
     position: absolute;
     z-index: 5;
 }
 
 #next {
-    top: 50%;
-    transform: translateY(-50%);
+    bottom: 0;
     position: absolute;
     z-index: 4;
     right: 50px;
 }
 
 #back {
-    top: 50%;
-    transform: translateY(-50%);
+    bottom: 0;
     position: absolute;
     z-index: 4;
-    right: 125px;
+    right: 150px;
 }
 
 #erase {
-    top: 50%;
-    transform: translateY(-50%);
+    bottom: 0;
     position: absolute;
     z-index: 4;
-    right: 225px;
+    right: 285px;
 }
 
 #container {
