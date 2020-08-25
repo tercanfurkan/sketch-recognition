@@ -1,6 +1,6 @@
 // constants
-const MODEL_PATH = "model_35_50000";
-const PARTIAL_RANDOM_LIST = true;
+const MODEL_PATH = "model_46_20000";
+const PARTIAL_RANDOM_LIST = false;
 
 /*
 variables
@@ -30,12 +30,12 @@ const FIRST_DRAWING_TEXT = "İlk Çizimin";
 const NEXT_DRAWING_TEXT = "Sıradaki Çizimin";
 
 const dictionary = { // 50
-    "english": ['pear', 'moustache', 'cell phone', 'cat', 'headphones', 'bird', 'power outlet', 'line', 'hammer', 'bread', 'square', 'house', 'spoon', 'umbrella', 'clock', 'eye', 'lightning', 'hand', 'spider', 'triangle', 'envelope', 'door', 'flower', 'shorts', 'broom', 'bucket', 'bicycle', 'ant', 'cup', 'apple', 'crown', 'hat', 'radio', 'tree', 'banana'],
-    "turkish": ['armut', 'bıyık', 'cep telefonu', 'kedi', 'kulaklık', 'kuş', 'priz', 'çizgi', 'çekiç', 'ekmek', 'kare', 'ev', 'kaşık', 'şemsiye', 'saat', 'göz', 'yıldırım', 'el', 'örümcek', 'üçgen', 'zarf', 'kapı', 'çiçek', 'şort', 'süpürge', 'kova', 'bisiklet', 'karınca', 'fincan', 'elma', 'taç', 'şapka', 'radyo', 'ağaç', 'muz']
+    "english": ['pear', 'moustache', 'cell phone', 'cat', 'headphones', 'bird', 'power outlet', 'line', 'hammer', 'bread', 'square', 'house', 'spoon', 'umbrella', 'clock', 'eye', 'lightning', 'hand', 'spider', 'triangle', 'envelope', 'door', 'flower', 'shorts', 'broom', 'bucket', 'bicycle', 'butterfly', 'cup', 'apple', 'crown', 'hat', 'radio', 'tree', 'banana'],
+    "turkish": ['armut', 'bıyık', 'cep telefonu', 'kedi', 'kulaklık', 'kuş', 'priz', 'çizgi', 'çekiç', 'ekmek', 'kare', 'ev', 'kaşık', 'şemsiye', 'saat', 'göz', 'yıldırım', 'el', 'örümcek', 'üçgen', 'zarf', 'kapı', 'çiçek', 'şort', 'süpürge', 'kova', 'bisiklet', 'kelebek', 'fincan', 'elma', 'taç', 'şapka', 'radyo', 'ağaç', 'muz']
 };
 const partial_dictionary = { // 35
-    "english": ['pear', 'moustache', 'cell phone', 'cat', 'headphones', 'bird', 'power outlet', 'line', 'hammer', 'bread', 'square', 'house', 'spoon', 'umbrella', 'clock', 'eye', 'lightning', 'hand', 'spider', 'triangle', 'envelope', 'door', 'flower', 'shorts', 'broom', 'bucket', 'bicycle', 'ant', 'cup', 'apple', 'crown', 'hat', 'radio', 'tree', 'banana'],
-    "turkish": ['armut', 'bıyık', 'cep telefonu', 'kedi', 'kulaklık', 'kuş', 'priz', 'çizgi', 'çekiç', 'ekmek', 'kare', 'ev', 'kaşık', 'şemsiye', 'saat', 'göz', 'yıldırım', 'el', 'örümcek', 'üçgen', 'zarf', 'kapı', 'çiçek', 'şort', 'süpürge', 'kova', 'bisiklet', 'karınca', 'fincan', 'elma', 'taç', 'şapka', 'radyo', 'ağaç', 'muz']
+    "english": ['pear', 'moustache', 'cell phone', 'cat', 'headphones', 'bird', 'power outlet', 'line', 'hammer', 'bread', 'square', 'house', 'spoon', 'umbrella', 'clock', 'eye', 'lightning', 'hand', 'spider', 'triangle', 'envelope', 'door', 'flower', 'shorts', 'broom', 'bucket', 'bicycle', 'butterfly', 'cup', 'apple', 'crown', 'hat', 'radio', 'tree', 'banana'],
+    "turkish": ['armut', 'bıyık', 'cep telefonu', 'kedi', 'kulaklık', 'kuş', 'priz', 'çizgi', 'çekiç', 'ekmek', 'kare', 'ev', 'kaşık', 'şemsiye', 'saat', 'göz', 'yıldırım', 'el', 'örümcek', 'üçgen', 'zarf', 'kapı', 'çiçek', 'şort', 'süpürge', 'kova', 'bisiklet', 'kelebek', 'fincan', 'elma', 'taç', 'şapka', 'radyo', 'ağaç', 'muz']
 };
 
 $(function() {
@@ -83,21 +83,6 @@ function initDrawingCanvas() {
             console.log("mouse move");
             recordCoor(e)
         });
-        canvas.on('touch:drag', function(e) {
-            console.log("touch:drag");
-        });
-        canvas.on('touch:orientation', function(e) {
-            console.log("touch:orientation");
-        });
-        canvas.on('touch:shake', function(e) {
-            console.log("touch:shake");
-        });
-        canvas.on('touch:gesture', function(e) {
-            console.log("touch:gesture");
-        });
-        canvas.on('touch:longpress', function(e) {
-            console.log("touch:longpress");
-        });
 }
 
 /*
@@ -106,20 +91,30 @@ set the table of the predictions
 function setTable(top5, probs) {
     console.log('top5', top5);
     console.log('probs', probs);
+    console.log("coordsHistory.length: ", coordsHistory.length)
     console.log("setTable, objectToDraw: ", objectToDraw)
+    if (top5.includes(objectToDraw)) {
+        setMessage('Bu bir "' + toLocaleUpperCase(objectToDraw) + '"!');
+        return;
+    }
+
     let classList = [];
     if (modelLoaded) {
         var index = 0
         top5.forEach(element => {
-            if (probs[index] > 0.05) {
+            if (coordsHistory.length < 1 && probs[index] < 1) {
+                console.log("nothing important to guess");
+            } else if (element === 'altıgen' || element === 'sekizgen' || element === 'karınca') {
+                if (probs[index] > 1) {
+                    classList.push(element)  
+                }
+            } else if (probs[index] > 0.057) {
                 classList.push(element)
-                index++
             }
+            index++;
         });
         if (classList.length === 0) {
             setMessage("")
-        } else if (classList.includes(objectToDraw)) {
-            setMessage('Bu bir "' + toLocaleUpperCase(objectToDraw) + '"!');
         } else {
             setMessage('"' + toLocaleUpperCase(classList.slice(0,3).join('", "')) + '"  çiziyorsun...');
         }
@@ -196,8 +191,8 @@ function getFrame() {
         const pred = model.predict(preprocess(imgData)).dataSync()
 
         //find the top 5 predictions 
-        const indices = findIndicesOfMax(pred, 5)
-        const probs = findTopValues(pred, 5)
+        const indices = findIndicesOfMax(pred, 10)
+        const probs = findTopValues(pred, 10)
         const names = getClassNamesTr(indices)
         console.log("getframe top5: ", getClassNames(indices))
 
