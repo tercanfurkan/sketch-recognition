@@ -1,6 +1,6 @@
 // constants
-const MODEL_PATH = "model_46_20000";
-const PARTIAL_RANDOM_LIST = false;
+const MODEL_PATH = "model3";
+const PARTIAL_RANDOM_LIST = true;
 
 /*
 variables
@@ -29,14 +29,19 @@ const AI_TITLE_TEXT = "YAPAY ZEKA"
 const FIRST_DRAWING_TEXT = "İlk Çizimin";
 const NEXT_DRAWING_TEXT = "Sıradaki Çizimin";
 
-const dictionary = { // 50
-    "english": ['pear', 'moustache', 'cell phone', 'cat', 'headphones', 'bird', 'power outlet', 'line', 'hammer', 'bread', 'square', 'house', 'spoon', 'umbrella', 'clock', 'eye', 'lightning', 'hand', 'spider', 'triangle', 'envelope', 'door', 'flower', 'shorts', 'broom', 'bucket', 'bicycle', 'butterfly', 'cup', 'apple', 'crown', 'hat', 'radio', 'tree', 'banana'],
-    "turkish": ['armut', 'bıyık', 'cep telefonu', 'kedi', 'kulaklık', 'kuş', 'priz', 'çizgi', 'çekiç', 'ekmek', 'kare', 'ev', 'kaşık', 'şemsiye', 'saat', 'göz', 'yıldırım', 'el', 'örümcek', 'üçgen', 'zarf', 'kapı', 'çiçek', 'şort', 'süpürge', 'kova', 'bisiklet', 'kelebek', 'fincan', 'elma', 'taç', 'şapka', 'radyo', 'ağaç', 'muz']
-};
-const partial_dictionary = { // 35
-    "english": ['pear', 'moustache', 'cell phone', 'cat', 'headphones', 'bird', 'power outlet', 'line', 'hammer', 'bread', 'square', 'house', 'spoon', 'umbrella', 'clock', 'eye', 'lightning', 'hand', 'spider', 'triangle', 'envelope', 'door', 'flower', 'shorts', 'broom', 'bucket', 'bicycle', 'butterfly', 'cup', 'apple', 'crown', 'hat', 'radio', 'tree', 'banana'],
-    "turkish": ['armut', 'bıyık', 'cep telefonu', 'kedi', 'kulaklık', 'kuş', 'priz', 'çizgi', 'çekiç', 'ekmek', 'kare', 'ev', 'kaşık', 'şemsiye', 'saat', 'göz', 'yıldırım', 'el', 'örümcek', 'üçgen', 'zarf', 'kapı', 'çiçek', 'şort', 'süpürge', 'kova', 'bisiklet', 'kelebek', 'fincan', 'elma', 'taç', 'şapka', 'radyo', 'ağaç', 'muz']
-};
+const partial_dictionary = [
+    'muz',     'kuş',          'ekmek',
+    'zarf',    'kaşık',        'saat',
+    'ev',      'elma',         'ağaç',
+    'şapka',   'çekiç',        'kelebek',
+    'şemsiye', 'kulaklık',     'el',
+    'kapı',    'bıyık',        'radyo',
+    'kedi',    'göz',          'şort',
+    'çizgi',   'priz',         'kare',
+    'örümcek', 'cep telefonu', 'çiçek',
+    'üçgen',   'armut',
+    'mantar', 'şimşek'
+];
 
 $(function() {
     document.documentElement.style.overflow = 'hidden';  // firefox, chrome
@@ -62,6 +67,7 @@ function initCanvas() {
 }
 
 let coordsHistory = [];
+let lastCoord;
 function initDrawingCanvas() {
     canvas.backgroundColor = '#ffffff';
     canvas.freeDrawingBrush = new fabric['PencilBrush'](canvas);
@@ -70,19 +76,30 @@ function initDrawingCanvas() {
     canvas.freeDrawingBrush.width = 7;
         //setup listeners 
         canvas.on('mouse:up', function(e) {
-            console.log("mouse up");
-            getFrame();
-            coordsHistory.push(coords);
-            mousePressed = false
+            onMouseUp();
         });
         canvas.on('mouse:down', function(e) {
-            console.log("mouse down");
-            mousePressed = true
+            onMouseDown();
         });
         canvas.on('mouse:move', function(e) {
-            console.log("mouse move");
-            recordCoor(e)
+            lastCoord = e;
+            recordCoor(lastCoord)
         });
+}
+
+
+function onMouseUp() {
+    console.log("mouse up");
+    getFrame();
+    coordsHistory.push(coords);
+    mousePressed = false
+    if (coordsHistory.length === 1) {
+    }
+}
+
+function onMouseDown() {
+    console.log("mouse down");
+    mousePressed = true
 }
 
 /*
@@ -102,15 +119,7 @@ function setTable(top5, probs) {
     if (modelLoaded) {
         var index = 0
         top5.forEach(element => {
-            if (coordsHistory.length < 1 && probs[index] < 1) {
-                console.log("nothing important to guess");
-            } else if (element === 'altıgen' || element === 'sekizgen' || element === 'karınca') {
-                if (probs[index] > 1) {
-                    classList.push(element)  
-                }
-            } else if (probs[index] > 0.057) {
-                classList.push(element)
-            }
+            classList.push(element)
             index++;
         });
         if (classList.length === 0) {
@@ -184,6 +193,7 @@ function getFrame() {
     //make sure we have at least two recorded coordinates 
     if (coords.length >= 2) {
 
+        //downloadCanvasImage()
         //get the image data from the canvas 
         const imgData = getImageData()
 
@@ -191,8 +201,8 @@ function getFrame() {
         const pred = model.predict(preprocess(imgData)).dataSync()
 
         //find the top 5 predictions 
-        const indices = findIndicesOfMax(pred, 10)
-        const probs = findTopValues(pred, 10)
+        const indices = findIndicesOfMax(pred, 5)
+        const probs = findTopValues(pred, 5)
         const names = getClassNamesTr(indices)
         console.log("getframe top5: ", getClassNames(indices))
 
@@ -206,10 +216,8 @@ function getFrame() {
 get the the class names 
 */
 function getClassNames(indices) {
-    console.log("getClassNamesTr");
     var outp = []
     for (var i = 0; i < indices.length; i++) {
-        console.log(classNames[indices[i]]);
         outp[i] = classNames[indices[i]]
     }
     return outp
@@ -219,10 +227,8 @@ function getClassNames(indices) {
 get the the class names 
 */
 function getClassNamesTr(indices) {
-    console.log("getClassNamesTr");
     var outp = []
     for (var i = 0; i < indices.length; i++) {
-        console.log(classNamesTr[indices[i]]);
         outp[i] = classNamesTr[indices[i]]
     }
     return outp
@@ -349,7 +355,7 @@ function allowDrawing() {
 function initRandomList() {
     console.log("initRandomList", classNamesTr);
     if (PARTIAL_RANDOM_LIST) {
-        return partial_dictionary.turkish.slice();
+        return partial_dictionary.slice();
     } else {
         return classNamesTr.slice();
     }
@@ -453,11 +459,6 @@ function toLocaleUpperCase(text) {
     return text.toLocaleUpperCase('tr-TR');
 }
 
-function translate(word) {
-    index = dictionary.english.indexOf(word);
-    return dictionary.turkish[index];
-}
-
 function getWidth() {
     return window.innerWidth;
 }
@@ -558,5 +559,19 @@ fabric.Canvas.prototype.undo = function () {
     }
 
     this.historyProcessing = false;
+}
+
+function click(x,y, event){
+    var ev = document.createEvent("MouseEvent");
+    var el = document.elementFromPoint(x,y);
+    ev.initMouseEvent(
+        event,
+        true /* bubble */, true /* cancelable */,
+        window, null,
+        x, y, 0, 0, /* coordinates */
+        false, false, false, false, /* modifier keys */
+        0 /*left*/, null
+    );
+    el.dispatchEvent(ev);
 }
 

@@ -9,7 +9,7 @@ saat
 ev
 elmas
 ay
-Basketbol topu
+basketbol topu
 elma
 trafik ışığı
 ağaç
@@ -41,9 +41,9 @@ dondurma
 priz
 kamp ateşi
 kare
-Şimşek
+şimşek
 balık
-Güneş
+güneş
 yüz
 dağ
 gözlük
@@ -55,13 +55,13 @@ Pizza
 tüfek
 kalem
 mikrofon
-Bank
+bank
 daire
 diş fırçası
-sosisli
+sosisli ekmek
 masa
 armut
-Tenis raketi
+tenis raketi
 kitap
 yastık
 tatlı çörek
