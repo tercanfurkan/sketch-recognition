@@ -1,4 +1,3 @@
-import React, {  useReducer} from "react";
 var template = require('./index');
 
 const App = () => {

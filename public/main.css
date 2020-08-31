@@ -138,16 +138,6 @@ canvas {
 }
 
 @font-face {
-    font-family: BloggerSans-light-italic;
-    src: url('static/fonts/BloggerSans-light-italic.otf');
-}
-
-@font-face {
-    font-family: BloggerSans-light;
-    src: url('static/fonts/BloggerSans-light.otf');
-}
-
-@font-face {
     font-family: klavikaRegularPlain;
     src: url('static/fonts/klavikaRegularPlain.otf');
 }

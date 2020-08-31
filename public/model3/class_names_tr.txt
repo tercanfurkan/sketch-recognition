@@ -22,7 +22,7 @@ el
 köprü
 dambıl
 yatak
-beyzbol
+beyzbol topu
 kamera
 kapı
 yılan

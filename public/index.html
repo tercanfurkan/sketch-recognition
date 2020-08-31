@@ -1,92 +1,85 @@
 <html lang="en">
 
-<head>
-  <meta charset="UTF-8" />
-  <title>Çizim Tanıma Yapay Zeka Uygulaması</title>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Çizim Tanıma Yapay Zeka Uygulaması</title>
 
-  <!-- bs4 css -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" />
+    <!-- bs4 css -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" />
 
-  <!-- css pie -->
-  <link rel="stylesheet" href="pie.css">
+    <!-- css pie -->
+    <link rel="stylesheet" href="pie.css">
 
-  <!-- jQuery library -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
-  <!-- Popper JS -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
+    <!-- Popper JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
 
-  <!-- Latest compiled JavaScript -->
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
 
-  <!-- TensorFlow.js script -->
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"> </script>
+    <!-- TensorFlow.js script -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"> </script>
 
-  <!-- canvas script -->
-  <script src="fabric.js"></script>
+    <!-- canvas script -->
+    <script src="fabric.min.js"></script>
 
-  <!-- main script -->
-  <script src="main.js"> </script>
+    <!-- main script -->
+    <script src="main.js"> </script>
 
-  <script src="index.js"></script>
+    <script src="index.js"></script>
 
-  <link rel="preload" as="font" href="/static/fonts/BloggerSans.ttf" type="font/ttf" crossorigin="anonymous">
-  <link rel="preload" as="font" href="static/fonts/BloggerSans-light-italic.otf" type="font/otf" crossorigin="anonymous">
-  <link rel="preload" as="font" href="static/fonts/BloggerSans-light.otf" type="font/otf" crossorigin="anonymous">
-  <link rel="preload" as="font" href="static/fonts/klavikaRegularPlain.otf" type="font/otf" crossorigin="anonymous">
+    <link rel="preload" as="font" href="/static/fonts/BloggerSans.ttf" type="font/ttf" crossorigin="anonymous">
+    <link rel="preload" as="font" href="static/fonts/klavikaRegularPlain.otf" type="font/otf" crossorigin="anonymous">
 
-  <!-- main css -->
-  <link rel="stylesheet" href="main.css">
-  <!-- intro css -->
-  <link rel="stylesheet" href="intro.css">
-  <!-- intro2 css -->
-  <link rel="stylesheet" href="start.css">
+    <!-- main css -->
+    <link rel="stylesheet" href="main.css">
+    <!-- intro css -->
+    <link rel="stylesheet" href="intro.css">
+    <!-- intro2 css -->
+    <link rel="stylesheet" href="start.css">
+  </head>
 
-</head>
-
-<body>  
-  <div id="container" class="noselect">
-    <img id="bg" src="static/start.gif" alt="" class="" onclick="onEnterApp()"/>
-    <div id="top-menu">
-      <span id="title">YAPAY ZEKA</span>
-    </div>
-    <div id="message-menu">
-      <span id="message">Başla</span>
-    </div>
-    <div id="intro">
+  <body>  
+    <div id="container" class="noselect">
+      <img id="bg" src="static/start.gif" alt="" class="" onclick="onEnterApp()"/>
       <div id="top-menu">
-        <span id="intro-title">YAPAY ZEKA</span>
+        <span id="title">YAPAY ZEKA</span>
       </div>
-      <div class="center-dialog" id="intro-center">
-        <div class="dialog-header">Ne Çiziyorsun?</div>
-        <div class="dialog-body">Yapay zeka sizin ne çizdiğinizi tahmin ediyor.<br>Pek çok kişiden alınan istatistiksel veriye dayanarak<br>ne çizdiğinizi, siz çizimi bitirmeden anlayan<br>yapay zeka ağını siz de keşfedin!</div>
-        <div><img id="start-drawing-btn" onclick="onStartDrawing()" src="static/cizmeye_basla2x.png"></div>
+      <div id="message-menu">
+        <span id="message">Başla</span>
       </div>
-      <div class="center-dialog" id="start-center" style="display: none;">
-        <div class="dialog-header" id="your-drawing-text">İlk Çizimin</div>
-        <div id="object-to-draw">KEDİ</div>
-        <div><img id="ok-button" onclick="onOkClick()" src="static/tamam2x.png"></div>
+      <div id="intro">
+        <div id="top-menu">
+          <span id="intro-title">YAPAY ZEKA</span>
+        </div>
+        <div class="center-dialog" id="intro-center">
+          <div class="dialog-header">Ne Çiziyorsun?</div>
+          <div class="dialog-body">Yapay zeka sizin ne çizdiğinizi tahmin ediyor.<br>Pek çok kişiden alınan istatistiksel veriye dayanarak<br>ne çizdiğinizi, siz çizimi bitirmeden anlayan<br>yapay zeka ağını siz de keşfedin!</div>
+          <div><img id="start-drawing-btn" onclick="onStartDrawing()" src="static/cizmeye_basla2x.png"></div>
+        </div>
+        <div class="center-dialog" id="start-center" style="display: none;">
+          <div class="dialog-header" id="your-drawing-text">İlk Çizimin</div>
+          <div id="object-to-draw">KEDİ</div>
+          <div><img id="ok-button" onclick="onOkClick()" src="static/tamam2x.png"></div>
+        </div>
       </div>
+      <div id="bottom-menu">
+        <div id="home">      
+            <img onclick="home()" src="static/home2.png">
+        </div>
+        <div id="erase">
+          <img onclick="erase()" src="static/sil2.png">
+        </div>
+        <div id="back">
+          <img onclick="back()" src="static/geri2.png">       
+        </div>
+        <div id="next">
+          <img onclick="next()" src="static/ileri2.png">        
+        </div>
+      </div>
+      <canvas id="canvas" class="canvas"></canvas>
     </div>
-    <div id="bottom-menu">
-      <div id="home">      
-          <img onclick="home()" src="static/home2.png">
-      </div>
-      <div id="erase">
-        <img onclick="erase()" src="static/sil2.png">
-      </div>
-      <div id="back">
-        <img onclick="back()" src="static/geri2.png">       
-      </div>
-      <div id="next">
-        <img onclick="next()" src="static/ileri2.png">        
-      </div>
-    </div>
-    <canvas id="canvas" class="canvas"></canvas>
-</div>
-</body>
-<script>
-  console.log('starting');
-</script>
-
+  </body>
 </html>

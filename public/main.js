@@ -40,7 +40,7 @@ const partial_dictionary = [
     'çizgi',   'priz',         'kare',
     'örümcek', 'cep telefonu', 'çiçek',
     'üçgen',   'armut',
-    'mantar', 'şimşek'
+    'mantar'
 ];
 
 $(function() {
@@ -59,7 +59,6 @@ prepare the drawing canvas
 */
 
 function initCanvas() {
-    console.log("initCanvas");
     canvas = window._canvas = new fabric.Canvas('canvas');
     canvas.historyInit();
     canvas.setWidth(window.innerWidth);
@@ -108,7 +107,6 @@ set the table of the predictions
 function setTable(top5, probs) {
     console.log('top5', top5);
     console.log('probs', probs);
-    console.log("coordsHistory.length: ", coordsHistory.length)
     console.log("setTable, objectToDraw: ", objectToDraw)
     if (top5.includes(objectToDraw)) {
         setMessage('Bu bir "' + toLocaleUpperCase(objectToDraw) + '"!');
@@ -347,13 +345,11 @@ async function start(cur_mode) {
 allow drawing on canvas
 */
 function allowDrawing() {
-    console.log("allowDrawing");
     canvas.isDrawingMode = 1
     modelLoaded = true;
 }
 
 function initRandomList() {
-    console.log("initRandomList", classNamesTr);
     if (PARTIAL_RANDOM_LIST) {
         return partial_dictionary.slice();
     } else {
