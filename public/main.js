@@ -1,10 +1,14 @@
-// constants
-const MODEL_PATH = "model3";
+// project_dir/public dizini içerisinde hangi model dosyasının seçili olduğunu belirtir
+const MODEL_PATH = "model/model3";
+
+/* 
+aşağıda tanımlı partial_dictionary, hangi kategorilerin çizilmesi istendiğini belirler ve 
+sadece bu değer 'true' ise aktif olur. 
+Bu değer 'false' ise yapay zeka uygulaması tanımlı 67 kategoriyi de sorar
+*/
 const PARTIAL_RANDOM_LIST = true;
 
-/*
-variables
-*/
+// değişkenler
 var model;
 var canvas = null;
 var classNames = [];
@@ -13,22 +17,28 @@ var coords = [];
 let randomList = [];
 var mousePressed = false;
 
+let coordsHistory = [];
+
 let objectToDraw = "";
 let modelLoaded = false;
 let drawThisLabel = "Model yükleniyor..";
 let messageText = "";
 let initialState = true;
 
-// styling
+// Arayüz yerleşimi ile ilgili constantlar
 const DEFAULT_MARGIN_X = 50;
 const DEFAULT_MARGIN_Y = 50;
 const introScreenBackgroundColor = '#1878BB'
 
-// UI TEXTS
+// Arayüzdeki yazılar ile ilgili constantlar
 const AI_TITLE_TEXT = "YAPAY ZEKA"
 const FIRST_DRAWING_TEXT = "İlk Çizimin";
 const NEXT_DRAWING_TEXT = "Sıradaki Çizimin";
 
+/* 
+Yukarıda tanımlı PARTIAL_RANDOM_LIST eğer 'true' ise, 
+yapay zeka uygulaması sadece aşağıdaki seçili kategorilerin çizilmesini ister 
+*/
 const partial_dictionary = [
     'muz',     'kuş',          'ekmek',
     'zarf',    'kaşık',        'saat',
@@ -51,13 +61,10 @@ $(function() {
 function init() {
     initCanvas();
     initDrawingCanvas();
-    start('en');
+    start();
 }
 
-/*
-prepare the drawing canvas 
-*/
-
+// Drawing canvas'ı hazırla
 function initCanvas() {
     canvas = window._canvas = new fabric.Canvas('canvas');
     canvas.historyInit();
@@ -65,8 +72,6 @@ function initCanvas() {
     canvas.setHeight(window.innerHeight);
 }
 
-let coordsHistory = [];
-let lastCoord;
 function initDrawingCanvas() {
     canvas.backgroundColor = '#ffffff';
     canvas.freeDrawingBrush = new fabric['PencilBrush'](canvas);
@@ -81,33 +86,37 @@ function initDrawingCanvas() {
             onMouseDown();
         });
         canvas.on('mouse:move', function(e) {
-            lastCoord = e;
-            recordCoor(lastCoord)
+            recordCoor(e)
         });
 }
 
-
 function onMouseUp() {
-    console.log("mouse up");
     getFrame();
     coordsHistory.push(coords);
     mousePressed = false
-    if (coordsHistory.length === 1) {
-    }
 }
 
 function onMouseDown() {
-    console.log("mouse down");
     mousePressed = true
 }
 
 /*
-set the table of the predictions 
+şuan çizilen koordinatları kaydeder
+*/
+function recordCoor(event) {
+    var pointer = canvas.getPointer(event.e);
+    var posX = pointer.x;
+    var posY = pointer.y;
+
+    if (posX >= 0 && posY >= 0 && mousePressed) {
+        coords.push(pointer)
+    }
+}
+
+/*
+Tahminlerle yapay zekanın sorduğu kategorinin uyuşup uyuşmadığını arayüze gönderir  
 */
 function setTable(top5, probs) {
-    console.log('top5', top5);
-    console.log('probs', probs);
-    console.log("setTable, objectToDraw: ", objectToDraw)
     if (top5.includes(objectToDraw)) {
         setMessage('Bu bir "' + toLocaleUpperCase(objectToDraw) + '"!');
         return;
@@ -129,23 +138,10 @@ function setTable(top5, probs) {
 }
 
 /*
-record the current drawing coordinates
-*/
-function recordCoor(event) {
-    var pointer = canvas.getPointer(event.e);
-    var posX = pointer.x;
-    var posY = pointer.y;
-
-    if (posX >= 0 && posY >= 0 && mousePressed) {
-        coords.push(pointer)
-    }
-}
-
-/*
-get the best bounding box by trimming around the drawing
+Ekrana çizilen resimin min ve max koordinatlarını iste
 */
 function getMinBox() {
-    //get coordinates 
+    // koordinatları al 
     var coorX = coords.map(function(p) {
         return p.x
     });
@@ -153,7 +149,7 @@ function getMinBox() {
         return p.y
     });
 
-    //find top left and bottom right corners 
+    // en üst sol ve en alt sağ koordinatlarını bul 
     var min_coords = {
         x: Math.min.apply(null, coorX),
         y: Math.min.apply(null, coorY)
@@ -162,8 +158,7 @@ function getMinBox() {
         x: Math.max.apply(null, coorX),
         y: Math.max.apply(null, coorY)
     }
-
-    //return as strucut 
+ 
     return {
         min: min_coords,
         max: max_coords
@@ -171,13 +166,13 @@ function getMinBox() {
 }
 
 /*
-get the current image data 
+Şuan çizilen resim verisini iste
 */
 function getImageData() {
-        //get the minimum bounding box around the drawing 
+        // resimi sınırlayan kutunun koordinatlarını al
         const mbb = getMinBox()
 
-        //get image data according to dpi 
+        // kullanılan cihazının piksel oranına göre resim verisini al 
         const dpi = window.devicePixelRatio
         const imgData = canvas.contextContainer.getImageData(mbb.min.x * dpi, mbb.min.y * dpi,
                                                       (mbb.max.x - mbb.min.x) * dpi, (mbb.max.y - mbb.min.y) * dpi);
@@ -185,33 +180,33 @@ function getImageData() {
     }
 
 /*
-get the prediction 
+Yapay zeka modelinden tahminleri iste 
 */
 function getFrame() {
-    //make sure we have at least two recorded coordinates 
+    // en az iki tane koordinatın kaydedildiğinden emin o
+    // böylece, çizilen bir şey yoksa boş yere tahmin yapma
     if (coords.length >= 2) {
 
-        //downloadCanvasImage()
-        //get the image data from the canvas 
+        // resim verisini canvas'ran al
         const imgData = getImageData()
 
-        //get the prediction 
+        // yapay zeka modelinden tahminleri al 
         const pred = model.predict(preprocess(imgData)).dataSync()
 
-        //find the top 5 predictions 
+        // en iyi 5 tahmini kullan 
         const indices = findIndicesOfMax(pred, 5)
         const probs = findTopValues(pred, 5)
         const names = getClassNamesTr(indices)
         console.log("getframe top5: ", getClassNames(indices))
 
-        //set the table 
+        // en iyi 5 tahmini olasılıklarıyla birlikte arayüze yazılma algoritmasına gönder 
         setTable(names, probs)
     }
 
 }
 
 /*
-get the the class names 
+İngilizce kategori isimlerini iste 
 */
 function getClassNames(indices) {
     var outp = []
@@ -222,7 +217,7 @@ function getClassNames(indices) {
 }
 
 /*
-get the the class names 
+Türkçe kategori isimlerini iste 
 */
 function getClassNamesTr(indices) {
     var outp = []
@@ -233,10 +228,9 @@ function getClassNamesTr(indices) {
 }
 
 /*
-load the class names 
+Bütün kategorileri ve Türkçe tercümelerini yükle 
 */
 async function loadDict() {
-    
     await $.ajax({
         url: MODEL_PATH + '/class_names.txt',
         dataType: 'text',
@@ -249,7 +243,7 @@ async function loadDict() {
 }
 
 /*
-load the class names
+İngilizce kategori isimlerini classNames array'e doldur
 */
 function success(data) {
     const lst = data.split(/\n/)
@@ -260,7 +254,7 @@ function success(data) {
 }
 
 /*
-load the class names
+Türkçe kategori isimlerini classNamesTr array'e doldur
 */
 function successTr(data) {
     const lst = data.split(/\n/)
@@ -268,87 +262,84 @@ function successTr(data) {
         let symbol = lst[i]
         classNamesTr[i] = symbol
     }
-    console.log("classNamesTr complete: ", classNamesTr);
 }
 
 /*
-get indices of the top probs
+En yüksek olasılıklı tahminlerin indeksini bul
 */
 function findIndicesOfMax(inp, count) {
     var outp = [];
     for (var i = 0; i < inp.length; i++) {
-        outp.push(i); // add index to output array
+        outp.push(i); // indeks'i output array'e ekle
         if (outp.length > count) {
             outp.sort(function(a, b) {
                 return inp[b] - inp[a];
-            }); // descending sort the output array
-            outp.pop(); // remove the last index (index of smallest element in output array)
+            }); // azalan şekilde output array'i sırala
+            outp.pop(); // en düşük olasılıklı kategorinin indeksini output array'den çıkar
         }
     }
     return outp;
 }
 
 /*
-find the top 5 predictions
+En iyi 5 tahmini bul
 */
 function findTopValues(inp, count) {
     var outp = [];
     let indices = findIndicesOfMax(inp, count)
-    // show 5 greatest scores
     for (var i = 0; i < indices.length; i++)
         outp[i] = inp[indices[i]]
     return outp
 }
 
 /*
-preprocess the data
+Resim verisini yapay zeka modeline uygun hale getirmek için ön işlemden geçir
 */
 function preprocess(imgData) {
     return tf.tidy(() => {
-        //convert to a tensor 
+        // resim verisini tensor'e çevir
         let tensor = tf.browser.fromPixels(imgData, numChannels = 1)
         
-        //resize 
+        // yeniden boyutlandır (veri setindeki örneklerın boyutuna getir) 
         const resized = tf.image.resizeBilinear(tensor, [28, 28]).toFloat()
         
-        //normalize 
+        // normalize et 
         const offset = tf.scalar(255.0);
         const normalized = tf.scalar(1.0).sub(resized.div(offset));
 
-        //We add a dimension to get a batch shape 
+        // batch_shape almak için yeni bir boyut ekle 
         const batched = normalized.expandDims(0)
         return batched
     })
 }
 
 /*
-load the model
+modeli yükle
 */
-async function start(cur_mode) {
-    //arabic or english
-    mode = cur_mode
+async function start() {
     
-    //load the model 
+    // modeli yükle 
     model = await tf.loadLayersModel(MODEL_PATH + '/model.json')
     
-    //warm up 
+    // modeli ısındır, bu sayede bir sonraki 'predict' daha hızlı çalışır
     model.predict(tf.zeros([1, 28, 28, 1]))
     
-    //allow drawing on the canvas 
+    // canvas üzerinde çizimi etkinleştir 
+    // (modeli yüklemeden etkinleştirseydik yapay zeka tahmin yapamayacaktı)
     allowDrawing()
     
-    //load the class names
+    // kategori isimlerini yükle
     await loadDict()
 }
 
-/*
-allow drawing on canvas
-*/
+// canvas üzerinde çizimi aktive et
 function allowDrawing() {
     canvas.isDrawingMode = 1
     modelLoaded = true;
 }
 
+// Eğer PARTIAL_RANDOM_LIST kullanılıyorsa onu, 
+// bütün Türkçe kategorileri immutable olarak kopyala
 function initRandomList() {
     if (PARTIAL_RANDOM_LIST) {
         return partial_dictionary.slice();
@@ -357,8 +348,10 @@ function initRandomList() {
     }
 }
 
+// Çizilmesi istenen kategoriyi rastgele bir şekilde belirle.
+// Uygulama sorduğu kategoriyi aynı oturumda bütün kategoriler sorulana kadar
+// bir daha sormasın diye randomList'ten çıkar.
 function getObjectToDraw() {
-    console.log("getObjectToDraw", randomList);
     if (randomList.length === 0) {
         randomList = initRandomList();
     }
@@ -370,6 +363,7 @@ function getObjectToDraw() {
     return drawThis;
 }
 
+// Yapay zekanın yaptığı tahmini arayüzde güncelle
 function setMessage(message) {
     console.log("setMessage");
     if (message === "") return; 
@@ -379,16 +373,15 @@ function setMessage(message) {
     document.getElementById("message").style.color = "#1878BB";
 }
 
-// CONTROLS
+// UYGULAMA KONTOLLERİ
 
-// ENTER APP
-
+// Uygulamaya giriş
 function onEnterApp() {
     console.log("onEnterApp()");
     document.getElementById("bg").style.display = "none";
 }
 
-// INTRO SCREEN CONTROLS
+// İntro ekranı kontrolü, çizmeye başla
 function onStartDrawing(){
     if (classNamesTr.length === 0) return;
 
@@ -397,19 +390,20 @@ function onStartDrawing(){
     objectToDraw = getObjectToDraw();
 }
 
-// START SCREEN CONTROLS
-
+// Başla ekranı kontrolü, tamam
 function onOkClick() {
-    console.log("onOkClick");
     document.getElementById("intro").style.display = "none";
 }
 
-// DRAW SCREEN CONTROLS
+// ÇİZİM EKRANI KONTROLLERİ
+
+// Sil
 function erase() {
     console.log("erase");
     clearCanvas();
 }
 
+// Bir sonraki çizim
 function next() {
     console.log("next")
     clearCanvas();
@@ -418,6 +412,7 @@ function next() {
     document.getElementById("intro").style.display = "block";
 }
 
+// Son çizimi geri al
 function back() {
     console.log("back");
     console.log(coordsHistory.length);
@@ -434,6 +429,7 @@ function back() {
     }
 }
 
+// Canvas'ı (çizim ekranını) temizle
 function clearCanvas() {
     canvas.clear();
     canvas.backgroundColor = '#ffffff';
@@ -444,63 +440,22 @@ function clearCanvas() {
     document.getElementById("message").style.color = "white";
 }
 
+// Ana ekran'a dön
 function home() {
     window.location.reload(false); 
 }
 
-// HELPERS
+// YARDIMCI FONKSİYONLAR
 
+// Türkçe karakterler dahil büyük harfe çevir
 function toLocaleUpperCase(text) {
     if (text === undefined) return;
     return text.toLocaleUpperCase('tr-TR');
 }
 
-function getWidth() {
-    return window.innerWidth;
-}
+// CANVAS İÇİN YARDIMCI FONKSİYONLAR
 
-function getHeight() {
-    return window.innerHeight;
-}
-
-function getCenterX() {
-    return window.innerWidth / 2;
-}
-
-function getCenterY() { 
-    return window.innerHeight / 2;
-}
-
-function getUpperY() {
-    return getCenterY() / 2;
-}
-
-function getLeftX() {
-    return 0 + DEFAULT_MARGIN_X;
-}
-
-function getRightX() {
-    return getWidth() - DEFAULT_MARGIN_X * 2;
-}
-
-function getTopY() {
-    return 0 + DEFAULT_MARGIN_Y;
-}
-
-function getBottomY(size) {
-    switch (size) {
-        case 'big':
-            return getHeight() - DEFAULT_MARGIN_Y * 3;
-        case 'small':
-            return getHeight() - DEFAULT_MARGIN_Y * 2.2;
-        case 'normal':
-        default:
-            return getHeight() - DEFAULT_MARGIN_Y * 2.5;
-    }
-}
-
-// CANVAS HELPERS
-
+// Canvas'taki çizimi indir (debug yapmak için kullanılabilir)
 function downloadCanvasImage() {
     // take a canvas screenshot and download
     const dataURL = canvas.toDataURL({
@@ -518,6 +473,8 @@ function downloadCanvasImage() {
     document.body.removeChild(link);
 }
 
+// Canvas sınıfına geri al özelliği kazandırmak için aşağıdaki 
+// prototip fonksiyonlar eklenmiştir
 fabric.Canvas.prototype.historyInit = function () {
     this.historyUndo = [];
     this.historyNextState = this.historyNext();
@@ -556,18 +513,3 @@ fabric.Canvas.prototype.undo = function () {
 
     this.historyProcessing = false;
 }
-
-function click(x,y, event){
-    var ev = document.createEvent("MouseEvent");
-    var el = document.elementFromPoint(x,y);
-    ev.initMouseEvent(
-        event,
-        true /* bubble */, true /* cancelable */,
-        window, null,
-        x, y, 0, 0, /* coordinates */
-        false, false, false, false, /* modifier keys */
-        0 /*left*/, null
-    );
-    el.dispatchEvent(ev);
-}
-

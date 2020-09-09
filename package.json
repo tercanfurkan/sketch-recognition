@@ -1,6 +1,6 @@
 {
   "name": "YapayZeka",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "private": true,
   "productName": "YapayZeka",
   "main": "electron/main.js",
@@ -22,11 +22,11 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "start-electron": "export ELECTRON_START_URL=http://localhost:3000 && electron .",
-    "build-electron": "mkdir build/src && cp -r electron/. build/electron && cp -r src/shared/. build/src/shared",
+    "build-electron": "mkdir build/src && cp -r electron/. build/electron",
     "package": "electron-builder build --mac --win --x64 -c.extraMetadata.main=build/electron/main.js --publish never",
     "package-mac": "electron-builder build --mac -c.extraMetadata.main=build/electron/main.js --publish never",
     "package-win": "electron-builder build --win --x64 -c.extraMetadata.main=build/electron/main.js --publish never",
-    "prepare-win": "react-scripts build && mkdir build/src && cp -r electron/. build/electron && cp -r src/shared/. build/src/shared && electron-builder build --win --x64 -c.extraMetadata.main=build/electron/main.js --publish never"
+    "prepare-win": "npm run build && npm run build-electron && npm run package-win"
   },
   "build": {
     "files": [
