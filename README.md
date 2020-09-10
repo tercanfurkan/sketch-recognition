@@ -12,6 +12,8 @@ https://github.com/googlecreativelab/quickdraw-dataset
 ### Tahmin motoru ve derin öğrenme modeli
 CNN(Convolutional Neural Network) derin öğrenme mimarisi ve Tensorflow API'si kullanılarak modellenmiştir. Tensorflow derin öğrenme kütüphaneleri kullanılarak veri seti modellendi ve derin öğrenme gerçekleştirilmiştir. Yapay zeka modeli python dili ve tensorflow API kullanılarak gerçekleştirilmiştir. Bu model [tensorflow.js](https://www.tensorflow.org/js) API'sini destekleyecek yapıya dönüştürülmüştir. Web uygulaması içerisinde bu modele tensorflow.js API'si kullanılarak ulaşılmıştur.
 
+Yapay zeka modeli kaynak kodları ve açıklamaları /public/model dizini içerisinde bulunabilir.
+
 ## Geliştirme yapmak için:
 ### 1. npm ve node yükle
 Geliştirme MacOs Catalina işletim sisteminde node 12.16.1 ve npm 6.13.4 versiyonları kullanılarak gerçekleştirilmiştir.
