@@ -1,31 +1,43 @@
-# Dokunmatik ekran çizim tahmin uygulaması
+# YapayZeka - Çizim Tanıma Dokunmatik Ekran Win10 Uygulaması
 
 ## Proje yapısı
 
-* Kullanıcı arayüzü: nwjs. Tarayıcı gerektirmeden web teknolojilerini kullanma imkanı sunan bir yapı. Eski adı node-webkit. Aynı zamanda platform-bağımsız. Windows ortamında masaüstü uygulaması için kullanıcı arayüzü geliştirmeye müsait. 
-https://nwjs.io/
+### Masaüstü uygulaması 
+Esas yapı olarak [electron.js](https://www.electronjs.org/) kullanılmıştır. electron.js, javascript, html ve css kullanarak platform bağımsız masaüstü uygulaması geliştirmeyi sağlamıştır.
 
-* Veri seti: Google quickdraw dataset.Toplam 365 kategoride 50 milyon çizim verisinden oluşuyor. Herkesin kullanımına açık ve ücretsiz bir kaynak. Tahmin motorunun geliştirilmesinde tahmin kabiliyeti test edilerek bu verilerin bir kısmı veya tamamı kullanılabilir.
+### Yapay zeka veri seti
+Google quickdraw veri seti kullanılmıştır. Bu veri seti toplam 365 kategoride 50 milyon çizim verisinden oluşuyor. Herkesin kullanımına açık ve ücretsiz bir kaynak. Tahmin motorunun geliştirilmesinde tahmin kabiliyeti test edilerek bu verilerin bir kısmı kullanıldı (67 adet kategori ve her kategoriden 10000 örnek çekilerek).
 https://github.com/googlecreativelab/quickdraw-dataset
 
-* Tahmin motoru ve derin öğrenme modeli: CNN(Convolutional Neural Network) deirn öğrenme mimarisi kullanan Tensorflow Keras modeli. Tensorflow ve Keras derin öğrenme kütüphaneleri kullanılarak veri seti modellenebilir ve derin öğrenme gerçekleştirilebilir. Bu kütüphaneler ve gerekli olabilecek diğer veri işleme kütüphaneleri python programlara dilini sağlam bir şekilde destekliyor.
+### Tahmin motoru ve derin öğrenme modeli
+CNN(Convolutional Neural Network) derin öğrenme mimarisi ve Tensorflow API'si kullanılarak modellenmiştir. Tensorflow derin öğrenme kütüphaneleri kullanılarak veri seti modellendi ve derin öğrenme gerçekleştirilmiştir. Yapay zeka modeli python dili ve tensorflow API kullanılarak gerçekleştirilmiştir. Bu model [tensorflow.js](https://www.tensorflow.org/js) API'sini destekleyecek yapıya dönüştürülmüştir. Web uygulaması içerisinde bu modele tensorflow.js API'si kullanılarak ulaşılmıştur.
 
-## React uygulamasi kurulum
+## Geliştirme yapmak için:
+### 1. npm ve node yükle
+Geliştirme MacOs Catalina işletim sisteminde node 12.16.1 ve npm 6.13.4 versiyonları kullanılarak gerçekleştirilmiştir.
+ 
+### 2. Web uygulamasının modüllerini yükle ve çalıştır
 ```
-docker run --rm -ti \
- --env-file <(env | grep -iE 'DEBUG|NODE_|ELECTRON_|YARN_|NPM_|CI|CIRCLE|TRAVIS_TAG|TRAVIS|TRAVIS_REPO_|TRAVIS_BUILD_|TRAVIS_BRANCH|TRAVIS_PULL_REQUEST_|APPVEYOR_|CSC_|GH_|GITHUB_|BT_|AWS_|STRIP|BUILD_') \
- --env ELECTRON_CACHE="/root/.cache/electron" \
- --env ELECTRON_BUILDER_CACHE="/root/.cache/electron-builder" \
- -v ${PWD}:/project \
- -v ${PWD##*/}-node-modules:/project/node_modules \
- -v ~/.cache/electron:/root/.cache/electron \
- -v ~/.cache/electron-builder:/root/.cache/electron-builder \
- electronuserland/builder:wine
-
 npm install
-npm run build
-npm run build-electron
-npm run package
-npm run package-mac
-npm run package-win
+npm start
 ```
+
+### 3. http://localhost:3000 adresine girerek web uygulamasını aç
+
+## Windows 10 Uygulaması olarak paketlemek için:
+### 1. Electron uygulamasının modüllerini yükle ve windows uygulamasını paketle
+```
+npm install
+npm run prepare-win
+```
+
+### 2. cizimtanima/dist/ dizininde YapayZeka <versiyon_numarasi>.exe çalıştırılabilir dosyası kullanıma hazır. (örn: YapayZeka 0.7.2.exe)
+
+## Windows 10 Uygulamasını başlangıç uygulaması olarak çalıştırmak için:
+1. Windows logo + R tuşuna bas, calistir ekranina shell:startup yaz, OK butonuna tıkla. Bu islem baslangic dosyasini acar. 
+2. YapayZeka.exe çalıştırılabilir dosyasinı 1. adımda açılan başlangıç dosyasına kopyala.
+3. Bilgisayari yeniden başlat ve YapayZeka uygulamasi otomatik açılacaktır.
+
+## Dokunmatik ekranda başka pencerelerin açılmasını engellemek için:
+Windows 10'daki TaskView özelliğini devre dışı bırakmak gerekiyor
+https://appuals.com/how-to-disable-task-view-on-windows-10/
