@@ -1,6 +1,6 @@
 {
   "name": "YapayZeka",
-  "version": "0.7.3",
+  "version": "0.7.5",
   "private": true,
   "productName": "YapayZeka",
   "main": "electron/main.js",
