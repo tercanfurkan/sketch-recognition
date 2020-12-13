@@ -46,6 +46,11 @@ body {
     cursor: pointer;
 }
 
+.canvas-container {
+    position: absolute !important;
+    top: 0 !important;
+}
+
 canvas {
     position: absolute;
     top: 0;

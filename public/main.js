@@ -50,7 +50,17 @@ const partial_dictionary = [
     'çizgi',   'priz',         'kare',
     'örümcek', 'cep telefonu', 'çiçek',
     'üçgen',   'armut',
-    'mantar'
+    'mantar',
+    'anahtar',
+    'trafik ışığı',
+    'dambıl',
+    'dondurma',
+    'balık',
+    'gözlük',
+    'elmas'
+
+
+
 ];
 
 $(function() {
@@ -77,7 +87,7 @@ function initDrawingCanvas() {
     canvas.freeDrawingBrush = new fabric['PencilBrush'](canvas);
     canvas.freeDrawingBrush.color = '#1878BB';
     canvas.renderAll();
-    canvas.freeDrawingBrush.width = 7;
+    canvas.freeDrawingBrush.width = 25;
         //setup listeners 
         canvas.on('mouse:up', function(e) {
             onMouseUp();
@@ -420,7 +430,7 @@ function back() {
         clearCanvas();
         return;
     } else {
-        document.getElementById("message").innerHTML = "Başla";
+        document.getElementById("message").innerHTML = "";
         document.getElementById("message").style.textShadow = "";
         document.getElementById("message").style.color = "white";
         coordsHistory.pop();
@@ -435,7 +445,7 @@ function clearCanvas() {
     canvas.backgroundColor = '#ffffff';
     coordsHistory = [];
     coords = [];
-    document.getElementById("message").innerHTML = "Başla";
+    document.getElementById("message").innerHTML = "";
     document.getElementById("message").style.textShadow = "";
     document.getElementById("message").style.color = "white";
 }
