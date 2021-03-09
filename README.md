@@ -25,6 +25,7 @@ npm start
 ### 3. http://localhost:3000 adresine girerek web uygulamasını aç
 
 ## Windows 10 Uygulaması olarak paketlemek için:
+> MacOS icin ayni islem `npm run prepare-mac`
 ### 1. Electron uygulamasının modüllerini yükle ve windows uygulamasını paketle
 ```
 npm install
