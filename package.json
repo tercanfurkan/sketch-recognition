@@ -77,7 +77,7 @@
     ]
   },
   "devDependencies": {
-    "electron": "^8.2.5",
+    "electron": "^15.5.5",
     "electron-builder": "^22.5.1",
     "enzyme": "^3.9.0",
     "enzyme-adapter-react-16": "^1.11.2",
